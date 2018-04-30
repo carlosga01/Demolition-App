@@ -45,6 +45,10 @@ class ViewController: UIViewController {
     
 }
 
+extension ViewController: CBPeripheralDelegate{
+    
+}
+
 extension ViewController : CBPeripheralManagerDelegate {
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
@@ -104,14 +108,14 @@ extension ViewController:CBCentralManagerDelegate{
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
         // check if the discovered perif is on opposing team
-        
+        print("trying to connect")
         centralManager?.connect(peripheral, options: nil)
         
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
-//        peripheral.delegate = self
+        peripheral.delegate = self
         print("connected")
         peripheral.discoverServices(nil)
         
