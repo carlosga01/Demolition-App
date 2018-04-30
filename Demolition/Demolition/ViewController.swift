@@ -43,13 +43,21 @@ class ViewController: UIViewController {
         print("im scanning")
     }
     
+    func initService() {
+        let serialService = CBMutableService(type: Constants.SERVICE_UUID, primary: true)
+        let rx = CBMutableCharacteristic(type: Constants.RX_UUID, properties: Constants.RX_PROPERTIES, value: nil, permissions: Constants.RX_PERMISSIONS)
+        
+        serialService.characteristics = [rx]
+        peripheralManager.add(serialService)
+    }
+    
 }
 
 extension ViewController : CBPeripheralDelegate {
     func peripheral( _ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        
+        print("did discover services")
         for service in peripheral.services! {
-            
+            print("iterating thru services")
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -59,8 +67,9 @@ extension ViewController : CBPeripheralDelegate {
         didDiscoverCharacteristicsFor service: CBService,
         error: Error?) {
         
+        print("did discover characteristics")
         for characteristic in service.characteristics! {
-            
+            print("iterating thru chars")
             let characteristic = characteristic as CBCharacteristic
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
                 print("recieved message")
@@ -80,6 +89,8 @@ extension ViewController : CBPeripheralManagerDelegate {
         
         if (peripheral.state == .poweredOn){
             print("peripheral state: on")
+            
+            initService()
             
             let advertisementData = "hello"
             
@@ -103,7 +114,7 @@ extension ViewController : CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if (central.state == .poweredOn){
             print("central state: on")
-
+            
         }
     }
 
