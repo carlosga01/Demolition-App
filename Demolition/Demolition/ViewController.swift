@@ -24,6 +24,8 @@ class ViewController: UIViewController {
     
     var characteristics = [String: CBCharacteristic]()
     
+    let SCAN_TIMEOUT = 10000.0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -38,9 +40,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func fireButton(_ sender: UIButton) {
-        self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
-        
-        print("im scanning")
+        startScanning(timeout: SCAN_TIMEOUT)
     }
     
     func initService() {
@@ -51,6 +51,26 @@ class ViewController: UIViewController {
         peripheralManager.add(serialService)
     }
     
+    @objc private func scanTimeout() {
+        print("[DEBUG] Scanning stopped")
+        self.centralManager?.stopScan()
+    }
+    
+    func startScanning(timeout: Double) -> Bool {
+        if centralManager?.state != .poweredOn {
+            
+            print("[ERROR] Couldn´t start scanning")
+            return false
+        }
+        
+        print("[DEBUG] Scanning started")
+        
+        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(ViewController.scanTimeout), userInfo: nil, repeats: false)
+        
+        self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+        
+        return true
+    }
 }
 
 extension ViewController : CBPeripheralDelegate {
@@ -100,11 +120,15 @@ extension ViewController : CBPeripheralManagerDelegate {
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         
+        print("didReceiveWrite")
         for request in requests {
 //            if let value = request.value {
 //                print("request value: ", value)
 //            }
             let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String!
+            
+            print("print")
+            print(messageText!)
             self.peripheralManager.respond(to: request, withResult: .success)
         }
     }
