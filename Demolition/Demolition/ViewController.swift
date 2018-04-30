@@ -14,22 +14,15 @@ class ViewController: UIViewController {
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
     
-    let mainCellReuseIdentifier = "MainCell"
-    let columnCount = 2
-    let margin : CGFloat = 10
     var visibleDevices = Array<Device>()
     var cachedDevices = Array<Device>()
     var cachedPeripheralNames = Dictionary<String, String>()
     var timer = Timer()
     
-    let player = PlayerModel()
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-//        centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
+        centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
 
     }
@@ -39,48 +32,15 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-   
-    
-    
-
     @IBAction func fireButton(_ sender: UIButton) {
-        
         self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+        
         print("im scanning")
-        
-        player.ble.startScanning(timeout: 10000.0)
-        
-//        ble.startScanning(timeout: PlayerModel.kBLE_SCAN_TIMEOUT)
-        
-        
-    
     }
     
 }
 
-extension ViewController: CBPeripheralDelegate{
-    
-}
-
-extension ViewController : CBPeripheralManagerDelegate {
-    
-    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        
-        if (peripheral.state == .poweredOn){
-            
-            let adData = "hello"
-            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey : [Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: adData])
-        }
-    }
-    
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        
-        for request in requests {
-            print("hit")
-            self.peripheralManager.respond(to: request, withResult: .success)
-        }
-    }
-    
+extension ViewController : CBPeripheralDelegate {
     func peripheral( _ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         
         for service in peripheral.services! {
@@ -105,33 +65,53 @@ extension ViewController : CBPeripheralManagerDelegate {
                 
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
             }
-            
         }
     }
 }
 
-//extension ViewController:CBCentralManagerDelegate{
-//    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-//        if (central.state == .poweredOn){
-//            print("state is on")
-//
-//        }
-//    }
-//
-//    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-//
-//        // check if the discovered perif is on opposing team
-//        print("trying to connect")
-//        centralManager?.connect(peripheral, options: nil)
-//
-//    }
-//
-//    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-//
-//        peripheral.delegate = self
-//        print("connected")
-//        peripheral.discoverServices(nil)
-//
-//    }
-//}
+extension ViewController : CBPeripheralManagerDelegate {
+    
+    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+        
+        if (peripheral.state == .poweredOn){
+            print("peripheral state: on")
+        }
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        
+        for request in requests {
+//            if let value = request.value {
+//                print("request value: ", value)
+//            }
+            let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String!
+            self.peripheralManager.respond(to: request, withResult: .success)
+        }
+    }
+}
+
+extension ViewController : CBCentralManagerDelegate {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        if (central.state == .poweredOn){
+            print("state is on")
+
+        }
+    }
+
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+
+        // check if the discovered perif is on opposing team
+        print("trying to connect")
+        centralManager?.connect(peripheral, options: nil)
+
+    }
+
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+
+        peripheral.delegate = self
+        print("connected")
+        peripheral.discoverServices(nil)
+
+    }
+}
 
