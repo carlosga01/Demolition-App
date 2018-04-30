@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     var characteristics = [String: CBCharacteristic]()
     
-    let SCAN_TIMEOUT = 10000.0
+    let SCAN_TIMEOUT = 1.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -171,7 +171,8 @@ extension ViewController : CBCentralManagerDelegate {
             
         activePeripheral?.delegate = self
         activePeripheral?.discoverServices([Constants.SERVICE_UUID])
-        print("connected")
+        central.stopScan();
+        print("connected");
 
     }
     
