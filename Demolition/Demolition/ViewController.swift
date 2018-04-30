@@ -22,12 +22,14 @@ class ViewController: UIViewController {
     var cachedPeripheralNames = Dictionary<String, String>()
     var timer = Timer()
     
+    let player = PlayerModel()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
-        
+//        centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
 
     }
@@ -36,11 +38,22 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+   
+    
+    
 
     @IBAction func fireButton(_ sender: UIButton) {
         
         self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
         print("im scanning")
+        
+        player.ble.startScanning(timeout: 10000.0)
+        
+//        ble.startScanning(timeout: PlayerModel.kBLE_SCAN_TIMEOUT)
+        
+        
+    
     }
     
 }
@@ -97,28 +110,28 @@ extension ViewController : CBPeripheralManagerDelegate {
     }
 }
 
-extension ViewController:CBCentralManagerDelegate{
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if (central.state == .poweredOn){
-            print("state is on")
-            
-        }
-    }
-    
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        
-        // check if the discovered perif is on opposing team
-        print("trying to connect")
-        centralManager?.connect(peripheral, options: nil)
-        
-    }
-    
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        
-        peripheral.delegate = self
-        print("connected")
-        peripheral.discoverServices(nil)
-        
-    }
-}
+//extension ViewController:CBCentralManagerDelegate{
+//    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+//        if (central.state == .poweredOn){
+//            print("state is on")
+//
+//        }
+//    }
+//
+//    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+//
+//        // check if the discovered perif is on opposing team
+//        print("trying to connect")
+//        centralManager?.connect(peripheral, options: nil)
+//
+//    }
+//
+//    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+//
+//        peripheral.delegate = self
+//        print("connected")
+//        peripheral.discoverServices(nil)
+//
+//    }
+//}
 
