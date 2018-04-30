@@ -14,8 +14,6 @@ class ViewController: UIViewController {
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
     
-    var visibleDevices = Array<Device>()
-    var cachedDevices = Array<Device>()
     var cachedPeripheralNames = Dictionary<String, String>()
     var timer = Timer()
     
@@ -41,6 +39,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
+    
     @IBAction func fireButton(_ sender: UIButton) {
         startScanning(timeout: SCAN_TIMEOUT)
     }
