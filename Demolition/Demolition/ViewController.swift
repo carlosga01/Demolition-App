@@ -82,6 +82,9 @@ extension ViewController : CBPeripheralDelegate {
             print("iterating thru services")
             peripheral.discoverCharacteristics(nil, for: service)
         }
+        
+//        centralManager?.stopScan()
+//        centralManager?.cancelPeripheralConnection(peripheral)
     }
     
     func peripheral(
@@ -94,14 +97,16 @@ extension ViewController : CBPeripheralDelegate {
             print("iterating thru chars")
             let characteristic = characteristic as CBCharacteristic
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
-                print("recieved message")
+                print("sending message")
                 
                 let data = "you've been attacked"
                 let data2 = data.data(using: .utf8)
                 
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                
             }
         }
+        
     }
 }
 
@@ -134,6 +139,10 @@ extension ViewController : CBPeripheralManagerDelegate {
             playerStatus.text = "Dead"
 
             self.peripheralManager.respond(to: request, withResult: .success)
+            
+            self.peripheralManager.stopAdvertising()
+            self.peripheralManager.removeAllServices()
+            
         }
     }
 }
