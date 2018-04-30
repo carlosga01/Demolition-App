@@ -39,6 +39,8 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBOutlet weak var playerStatus: UILabel!
+    
     @IBAction func fireButton(_ sender: UIButton) {
         startScanning(timeout: SCAN_TIMEOUT)
     }
@@ -127,8 +129,10 @@ extension ViewController : CBPeripheralManagerDelegate {
 //            }
             let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String!
             
-            print("print")
+
             print(messageText!)
+            playerStatus.text = "Dead"
+
             self.peripheralManager.respond(to: request, withResult: .success)
         }
     }
