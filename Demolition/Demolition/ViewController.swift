@@ -59,11 +59,36 @@ extension ViewController : CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         
         for request in requests {
-            if let value = request.value {
-                // HANDLE CONNECTION
-                print("hit")
-            }
+            print("hit")
             self.peripheralManager.respond(to: request, withResult: .success)
+        }
+    }
+    
+    func peripheral( _ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        
+        for service in peripheral.services! {
+            
+            peripheral.discoverCharacteristics(nil, for: service)
+        }
+    }
+    
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService,
+        error: Error?) {
+        
+        for characteristic in service.characteristics! {
+            
+            let characteristic = characteristic as CBCharacteristic
+            if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
+                print("recieved message")
+                
+                let data = "you've been attacked"
+                let data2 = data.data(using: .utf8)
+                
+                peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+            }
+            
         }
     }
 }
@@ -78,8 +103,17 @@ extension ViewController:CBCentralManagerDelegate{
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
-        print(peripheral)
-        print(advertisementData)
+        // check if the discovered perif is on opposing team
+        
+        centralManager?.connect(peripheral, options: nil)
+        
+    }
+    
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        
+//        peripheral.delegate = self
+        print("connected")
+        peripheral.discoverServices(nil)
         
     }
 }
