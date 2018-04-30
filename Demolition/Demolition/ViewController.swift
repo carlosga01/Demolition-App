@@ -19,6 +19,11 @@ class ViewController: UIViewController {
     var cachedPeripheralNames = Dictionary<String, String>()
     var timer = Timer()
     
+    var peripherals = [CBPeripheral]()
+    var activePeripheral: CBPeripheral?
+    
+    var characteristics = [String: CBCharacteristic]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -75,6 +80,10 @@ extension ViewController : CBPeripheralManagerDelegate {
         
         if (peripheral.state == .poweredOn){
             print("peripheral state: on")
+            
+            let advertisementData = "hello"
+            
+            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }
     }
     
@@ -93,7 +102,7 @@ extension ViewController : CBPeripheralManagerDelegate {
 extension ViewController : CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if (central.state == .poweredOn){
-            print("state is on")
+            print("central state: on")
 
         }
     }
@@ -102,16 +111,39 @@ extension ViewController : CBCentralManagerDelegate {
 
         // check if the discovered perif is on opposing team
         print("trying to connect")
+        
+        peripherals.append(peripheral)
+        
         centralManager?.connect(peripheral, options: nil)
 
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-
-        peripheral.delegate = self
+        
+        activePeripheral = peripheral
+            
+        activePeripheral?.delegate = self
+        activePeripheral?.discoverServices([Constants.SERVICE_UUID])
         print("connected")
-        peripheral.discoverServices(nil)
 
     }
+    
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        
+        var text = "[DEBUG] Disconnected from peripheral: \(peripheral.identifier.uuidString)"
+        
+        if error != nil {
+            text += ". Error: \(error!.localizedDescription)"
+        }
+        
+        print(text)
+        
+        activePeripheral?.delegate = nil
+        activePeripheral = nil
+        characteristics.removeAll(keepingCapacity: false)
+        
+    }
+
+    
 }
 
