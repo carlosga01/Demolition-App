@@ -14,6 +14,7 @@
 		860299BB209250EA003CD7C3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 860299B9209250EA003CD7C3 /* LaunchScreen.storyboard */; };
 		860299C6209250EA003CD7C3 /* DemolitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299C5209250EA003CD7C3 /* DemolitionTests.swift */; };
 		860299D1209250EA003CD7C3 /* DemolitionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299D0209250EA003CD7C3 /* DemolitionUITests.swift */; };
+		860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60D2097E0CA00B12F27 /* SigninViewController.swift */; };
 		86A9BCD52096D541007CC548 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9BCD42096D541007CC548 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 		860299CC209250EA003CD7C3 /* DemolitionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DemolitionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		860299D0209250EA003CD7C3 /* DemolitionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemolitionUITests.swift; sourceTree = "<group>"; };
 		860299D2209250EA003CD7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		860DA60D2097E0CA00B12F27 /* SigninViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		86A9BCD42096D541007CC548 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -100,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				860299B0209250E7003CD7C3 /* AppDelegate.swift */,
+				860DA60D2097E0CA00B12F27 /* SigninViewController.swift */,
 				860299B2209250E7003CD7C3 /* ViewController.swift */,
 				86A9BCD42096D541007CC548 /* Constants.swift */,
 				860299B4209250E7003CD7C3 /* Main.storyboard */,
@@ -267,6 +270,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */,
 				860299B3209250E7003CD7C3 /* ViewController.swift in Sources */,
 				86A9BCD52096D541007CC548 /* Constants.swift in Sources */,
 				860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */,

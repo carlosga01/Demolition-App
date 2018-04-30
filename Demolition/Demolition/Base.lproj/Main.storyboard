@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Signin View Controller-->
         <scene sceneID="hYW-93-cCv">
             <objects>
-                <viewController id="YtL-ce-v0c" sceneMemberID="viewController">
+                <viewController id="YtL-ce-v0c" customClass="SigninViewController" customModule="Demolition" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Uhp-rQ-YN7">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -26,14 +26,14 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Your Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="1yu-f1-WYQ">
-                                <rect key="frame" x="139" y="194" width="97" height="30"/>
+                                <rect key="frame" x="113" y="189" width="148" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="fhe-eg-wZz">
-                                <rect key="frame" x="116" y="294" width="143" height="29"/>
+                                <rect key="frame" x="116" y="248" width="143" height="29"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <segments>
                                     <segment title="Attacker"/>
@@ -41,7 +41,7 @@
                                 </segments>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pvi-SK-YUy">
-                                <rect key="frame" x="164" y="375" width="47" height="30"/>
+                                <rect key="frame" x="164" y="329" width="47" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="START"/>
                                 <connections>
@@ -53,6 +53,10 @@
                         <viewLayoutGuide key="safeArea" id="sJs-oU-1pT"/>
                     </view>
                     <navigationItem key="navigationItem" id="tcP-xM-YBy"/>
+                    <connections>
+                        <outlet property="nameField" destination="1yu-f1-WYQ" id="WJO-2N-d1k"/>
+                        <outlet property="teamSelector" destination="fhe-eg-wZz" id="SCg-Qz-KRD"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2NM-RP-r70" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
