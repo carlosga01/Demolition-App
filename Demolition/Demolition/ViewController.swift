@@ -40,7 +40,7 @@ class ViewController: UIViewController {
     }
     
     @IBOutlet weak var playerStatus: UILabel!
-    
+    @IBOutlet weak var fireButton: UIButton!
     @IBAction func fireButton(_ sender: UIButton) {
         startScanning(timeout: SCAN_TIMEOUT)
     }
@@ -137,7 +137,7 @@ extension ViewController : CBPeripheralManagerDelegate {
 
             print(messageText!)
             playerStatus.text = "Dead"
-
+            fireButton.isEnabled = false;
             self.peripheralManager.respond(to: request, withResult: .success)
             
             self.peripheralManager.stopAdvertising()
