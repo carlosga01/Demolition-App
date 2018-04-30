@@ -37,6 +37,8 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBOutlet weak var playerStatus: UILabel!
+    
     @IBAction func fireButton(_ sender: UIButton) {
         self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
         
@@ -105,6 +107,9 @@ extension ViewController : CBPeripheralManagerDelegate {
 //                print("request value: ", value)
 //            }
             let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String!
+            
+            print(messageText!)
+            playerStatus.text = "Dead"
             self.peripheralManager.respond(to: request, withResult: .success)
         }
     }
