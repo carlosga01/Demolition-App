@@ -30,13 +30,16 @@ class ViewController: UIViewController {
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var team: UILabel!
-    
+    var receivedName = "";
+    var receivedTeam = "";
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
-        
+        name.text = receivedName;
+        team.text = receivedTeam;
     }
 
     override func didReceiveMemoryWarning() {

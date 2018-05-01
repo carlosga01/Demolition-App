@@ -17,8 +17,16 @@ class SigninViewController: UIViewController {
     
     @IBAction func startButton(_ sender: UIButton) {
         print("Game Started")
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
+        // get a reference to the second view controller
+        let ViewController = segue.destination as! ViewController
         
+        // set a variable in the second view controller with the String to pass
+        ViewController.receivedName = nameField.text!
+        ViewController.receivedTeam = teamSelector.titleForSegment(at: teamSelector.selectedSegmentIndex)!
     }
     
     
