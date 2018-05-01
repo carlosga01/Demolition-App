@@ -14,4 +14,14 @@ class SigninViewController: UIViewController {
     @IBOutlet weak var nameField: UITextField!
     
     @IBOutlet weak var teamSelector: UISegmentedControl!
+    
+    @IBAction func startButton(_ sender: UIButton) {
+        print("Game Started")
+        
+        
+    }
+    
+    
+    
+    
 }

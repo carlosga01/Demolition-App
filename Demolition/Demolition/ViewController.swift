@@ -24,12 +24,19 @@ class ViewController: UIViewController {
     
     let SCAN_TIMEOUT = 1.0
     
+    var nameText: String?
+    
+    @IBOutlet weak var playerStatus: UILabel!
+    @IBOutlet weak var fireButton: UIButton!
+    @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var team: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
-
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,8 +44,6 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBOutlet weak var playerStatus: UILabel!
-    @IBOutlet weak var fireButton: UIButton!
     
     @IBAction func fireButton(_ sender: UIButton) {
         startScanning(timeout: SCAN_TIMEOUT)
