@@ -23,9 +23,7 @@ class ViewController: UIViewController {
     var characteristics = [String: CBCharacteristic]()
     
     let SCAN_TIMEOUT = 1.0
-    
-    var nameText: String?
-    
+        
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var name: UILabel!
@@ -106,7 +104,7 @@ extension ViewController : CBPeripheralDelegate {
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
                 print("sending message")
                 
-                let data = "you've been attacked"
+                let data = "fire " + team.text! + " " + name.text!
                 let data2 = data.data(using: .utf8)
                 
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
@@ -139,16 +137,25 @@ extension ViewController : CBPeripheralManagerDelegate {
 //            if let value = request.value {
 //                print("request value: ", value)
 //            }
-            let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String!
+            let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String?
             
-
-            print(messageText!)
-            playerStatus.text = "Dead"
-            fireButton.isEnabled = false;
-            self.peripheralManager.respond(to: request, withResult: .success)
+            let split = messageText?.components(separatedBy: " ")
             
-            self.peripheralManager.stopAdvertising()
-            self.peripheralManager.removeAllServices()
+            let messageType = split![0]
+            let fromTeam = split![1]
+            let fromName = split![2]
+            
+            if messageType == "fire" {
+                if fromTeam != team.text {
+                    playerStatus.text = "Dead"
+                    fireButton.isEnabled = false;
+                    self.peripheralManager.respond(to: request, withResult: .success)
+                    
+                    print("You were killed by: " + fromName)
+                    self.peripheralManager.stopAdvertising()
+                    self.peripheralManager.removeAllServices()
+                }
+            }
             
         }
     }
