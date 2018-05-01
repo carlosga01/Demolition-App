@@ -177,6 +177,8 @@ extension ViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         centralManager?.connect(peripheral, options: nil)
+        
+        central.stopScan()
 
     }
 
