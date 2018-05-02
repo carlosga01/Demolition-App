@@ -98,14 +98,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alive" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rLF-Zm-Bmd">
-                                <rect key="frame" x="138.66666666666666" y="254" width="98" height="47"/>
-                                <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="36"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vy7-up-sUj">
-                                <rect key="frame" x="0.0" y="682" width="187.66666666666666" height="96"/>
+                                <rect key="frame" x="0.0" y="682" width="188" height="96"/>
                                 <color key="backgroundColor" red="0.4392156862745098" green="0.32941176470588235" blue="0.2196078431372549" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="96" id="Zqm-QJ-VaU"/>
@@ -118,7 +112,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TWj-kP-Ic2">
-                                <rect key="frame" x="187" y="682" width="187.66666666666663" height="96"/>
+                                <rect key="frame" x="187" y="682" width="188" height="96"/>
                                 <color key="backgroundColor" red="0.30196078430000001" green="0.43921568630000002" blue="0.30196078430000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="96" id="wjG-oz-JNa"/>
@@ -171,9 +165,18 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="*time left*" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e0V-p5-YtI">
-                                <rect key="frame" x="27.999999999999993" y="82" width="98.333333333333314" height="22.333333333333329"/>
+                                <rect key="frame" x="28" y="82" width="98" height="22"/>
                                 <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
                                 <color key="textColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="3AU-lP-Say">
+                                <rect key="frame" x="0.0" y="229" width="375" height="445"/>
+                            </mapView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alive" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rLF-Zm-Bmd">
+                                <rect key="frame" x="138" y="174" width="98" height="47"/>
+                                <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="36"/>
+                                <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -185,21 +188,25 @@
                             <constraint firstItem="Fu9-1v-kFV" firstAttribute="top" secondItem="vy7-up-sUj" secondAttribute="bottom" id="6w3-lj-OeU"/>
                             <constraint firstItem="FKe-IV-ne0" firstAttribute="top" secondItem="03I-Ly-Ma1" secondAttribute="bottom" constant="8" id="85w-qh-Nm8"/>
                             <constraint firstItem="03I-Ly-Ma1" firstAttribute="top" secondItem="VDi-z5-4W3" secondAttribute="bottom" constant="69" id="8N2-2b-VHJ"/>
-                            <constraint firstItem="rLF-Zm-Bmd" firstAttribute="top" secondItem="FKe-IV-ne0" secondAttribute="bottom" constant="88" id="IqB-7m-zOG"/>
+                            <constraint firstItem="rLF-Zm-Bmd" firstAttribute="top" secondItem="FKe-IV-ne0" secondAttribute="bottom" constant="8" id="IqB-7m-zOG"/>
                             <constraint firstItem="03I-Ly-Ma1" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="28" id="JJp-nC-i4n"/>
                             <constraint firstAttribute="trailing" secondItem="Rda-hF-vsA" secondAttribute="trailing" constant="99" id="Jfr-eW-4Pm"/>
                             <constraint firstItem="TWj-kP-Ic2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="187" id="Kzr-ff-erd"/>
                             <constraint firstItem="e0V-p5-YtI" firstAttribute="top" secondItem="hGA-lg-oO3" secondAttribute="bottom" constant="7" id="O1k-JM-GTh"/>
                             <constraint firstAttribute="trailing" secondItem="vy7-up-sUj" secondAttribute="trailing" constant="187.5" id="OKi-eQ-F3l"/>
+                            <constraint firstItem="3AU-lP-Say" firstAttribute="top" secondItem="rLF-Zm-Bmd" secondAttribute="bottom" constant="8" id="OOK-ZA-ABj"/>
                             <constraint firstItem="Fu9-1v-kFV" firstAttribute="top" secondItem="TWj-kP-Ic2" secondAttribute="bottom" id="Ogv-5W-Mz4"/>
                             <constraint firstItem="Rsi-hN-Bs1" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="213" id="SaZ-du-Bgy"/>
                             <constraint firstItem="FKe-IV-ne0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="28" id="St6-7y-XyK"/>
+                            <constraint firstItem="3AU-lP-Say" firstAttribute="leading" secondItem="vy7-up-sUj" secondAttribute="leading" id="Xst-h1-zjG"/>
                             <constraint firstItem="Rda-hF-vsA" firstAttribute="top" secondItem="VDi-z5-4W3" secondAttribute="bottom" constant="69" id="bAu-bv-9n1"/>
                             <constraint firstItem="hGA-lg-oO3" firstAttribute="top" secondItem="VDi-z5-4W3" secondAttribute="bottom" constant="8" id="fzB-6K-yTg"/>
+                            <constraint firstItem="3AU-lP-Say" firstAttribute="trailing" secondItem="TWj-kP-Ic2" secondAttribute="trailing" id="gfa-GV-jE3"/>
                             <constraint firstItem="Rsi-hN-Bs1" firstAttribute="top" secondItem="bN0-h3-6wm" secondAttribute="bottom" constant="8" id="lFR-Nb-juj"/>
                             <constraint firstAttribute="trailing" secondItem="bN0-h3-6wm" secondAttribute="trailing" constant="91" id="nI6-ON-tti"/>
                             <constraint firstAttribute="trailing" secondItem="TWj-kP-Ic2" secondAttribute="trailing" constant="0.5" id="nwR-Zw-Chr"/>
                             <constraint firstItem="bN0-h3-6wm" firstAttribute="top" secondItem="VDi-z5-4W3" secondAttribute="bottom" constant="7" id="op7-vq-9V4"/>
+                            <constraint firstItem="TWj-kP-Ic2" firstAttribute="top" secondItem="3AU-lP-Say" secondAttribute="bottom" constant="8" id="pcA-Ov-W7g"/>
                             <constraint firstItem="Anj-OF-Dgc" firstAttribute="top" secondItem="Rda-hF-vsA" secondAttribute="bottom" constant="9" id="pvf-6C-nKb"/>
                             <constraint firstItem="vy7-up-sUj" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="seF-Nd-X2k"/>
                             <constraint firstItem="hGA-lg-oO3" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="28" id="ucq-OB-Fne"/>
@@ -208,6 +215,7 @@
                     <connections>
                         <outlet property="ammoLeft" destination="Rsi-hN-Bs1" id="gdI-Pd-Vks"/>
                         <outlet property="fireButton" destination="vy7-up-sUj" id="6xo-wM-Xgv"/>
+                        <outlet property="mapView" destination="3AU-lP-Say" id="gCt-of-Npw"/>
                         <outlet property="name" destination="Anj-OF-Dgc" id="wNG-gU-Ky1"/>
                         <outlet property="playerStatus" destination="rLF-Zm-Bmd" id="NbR-CP-8UT"/>
                         <outlet property="team" destination="FKe-IV-ne0" id="KB8-Hy-Ndy"/>

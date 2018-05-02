@@ -8,8 +8,10 @@
 
 import UIKit
 import CoreBluetooth
+import MapKit
+import CoreLocation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
@@ -29,7 +31,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var team: UILabel!
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
-    
+    @IBOutlet weak var mapView: MKMapView!
     
     var receivedName = "";
     var receivedTeam = "";
@@ -37,6 +39,12 @@ class ViewController: UIViewController {
     var ammo = 5;
     var currentTime = 1000;
     var timer = Timer();
+    
+    let locationManager = CLLocationManager()
+    var centerLocation: CLLocationCoordinate2D?
+    
+
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +58,20 @@ class ViewController: UIViewController {
         team.text = receivedTeam;
         ammoLeft.text = String(ammo);
         timeLeft.text = String(currentTime);
+        
+        // Ask for Authorisation from the User.
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            print("location services on!")
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.startUpdatingLocation()
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -71,6 +93,20 @@ class ViewController: UIViewController {
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
         }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        let location = locations.last! as CLLocation
+        
+        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        print("center")
+        print (center)
+        
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        
+        self.mapView.setRegion(region, animated: true)
+        self.mapView.showsUserLocation = true;
     }
     
     @IBAction func fireButton(_ sender: UIButton) {
