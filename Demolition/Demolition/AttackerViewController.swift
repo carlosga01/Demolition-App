@@ -1,17 +1,18 @@
 //
-//  ViewController.swift
+//  AttackerViewController.swift
 //  Demolition
 //
 //  Created by Carlos Garcia on 4/26/18.
 //  Copyright © 2018 6.S062 Project. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import CoreBluetooth
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
@@ -28,13 +29,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var name: UILabel!
-    @IBOutlet weak var team: UILabel!
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
     
     var receivedName = "";
-    var receivedTeam = "";
     
     var ammo = 5;
     var currentTime = 1000;
@@ -43,8 +42,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
     let annotation = MKPointAnnotation()
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -54,7 +51,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
-        team.text = receivedTeam;
         ammoLeft.text = String(ammo);
         timeLeft.text = String(currentTime);
         
@@ -75,7 +71,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
         
     }
-
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -102,8 +99,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        print("center")
-        print (center)
         
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         
@@ -149,7 +144,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         print("[DEBUG] Scanning started")
         
-        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(ViewController.scanTimeout), userInfo: nil, repeats: false)
+        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(AttackerViewController.scanTimeout), userInfo: nil, repeats: false)
         
         self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
         
@@ -157,7 +152,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
 }
 
-extension ViewController : CBPeripheralDelegate {
+extension AttackerViewController : CBPeripheralDelegate {
     func peripheral( _ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         print("did discover services")
         for service in peripheral.services! {
@@ -181,14 +176,11 @@ extension ViewController : CBPeripheralDelegate {
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
                 print("sending message")
                 
-                let data = "fire " + team.text! + " " + name.text!
+                let data = "fire attacker " + name.text!
                 let data2 = data.data(using: .utf8)
                 
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
                 
-                let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-                self.present(alertController, animated: true, completion: nil)
                 
             }
         }
@@ -196,7 +188,7 @@ extension ViewController : CBPeripheralDelegate {
     }
 }
 
-extension ViewController : CBPeripheralManagerDelegate {
+extension AttackerViewController : CBPeripheralManagerDelegate {
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         
@@ -227,7 +219,7 @@ extension ViewController : CBPeripheralManagerDelegate {
             let fromName = split![2]
             
             if messageType == "fire" {
-                if fromTeam != team.text {
+                if fromTeam != "attacker" {
                     playerStatus.text = "Dead"
                     fireButton.isEnabled = false;
                     self.peripheralManager.respond(to: request, withResult: .success)
@@ -242,7 +234,7 @@ extension ViewController : CBPeripheralManagerDelegate {
     }
 }
 
-extension ViewController : CBCentralManagerDelegate {
+extension AttackerViewController : CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if (central.state == .poweredOn){
             print("central state: on")
@@ -256,6 +248,10 @@ extension ViewController : CBCentralManagerDelegate {
         print("trying to connect")
         
         peripherals.append(peripheral)
+        
+        let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
         
         centralManager?.connect(peripheral, options: nil)
         
