@@ -11,13 +11,14 @@
 		246431A73054D26B6403605B /* Pods_DemolitionTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EB740EF5C865100BE2EDC5 /* Pods_DemolitionTests.framework */; };
 		851640C5960F300926D4E143 /* Pods_Demolition.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 11717CF76D7634989C97EFA5 /* Pods_Demolition.framework */; };
 		860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299B0209250E7003CD7C3 /* AppDelegate.swift */; };
-		860299B3209250E7003CD7C3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299B2209250E7003CD7C3 /* ViewController.swift */; };
+		860299B3209250E7003CD7C3 /* AttackerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299B2209250E7003CD7C3 /* AttackerViewController.swift */; };
 		860299B6209250E7003CD7C3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 860299B4209250E7003CD7C3 /* Main.storyboard */; };
 		860299B8209250EA003CD7C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 860299B7209250EA003CD7C3 /* Assets.xcassets */; };
 		860299BB209250EA003CD7C3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 860299B9209250EA003CD7C3 /* LaunchScreen.storyboard */; };
 		860299C6209250EA003CD7C3 /* DemolitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299C5209250EA003CD7C3 /* DemolitionTests.swift */; };
 		860299D1209250EA003CD7C3 /* DemolitionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299D0209250EA003CD7C3 /* DemolitionUITests.swift */; };
 		860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60D2097E0CA00B12F27 /* SigninViewController.swift */; };
+		860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60F209A874C00B12F27 /* DefenderViewController.swift */; };
 		86A9BCD52096D541007CC548 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9BCD42096D541007CC548 /* Constants.swift */; };
 		A07167A33EEA68440870734E /* Pods_DemolitionUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */; };
 /* End PBXBuildFile section */
@@ -47,7 +48,7 @@
 		67EB740EF5C865100BE2EDC5 /* Pods_DemolitionTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DemolitionTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		860299AD209250E7003CD7C3 /* Demolition.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Demolition.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		860299B0209250E7003CD7C3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		860299B2209250E7003CD7C3 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		860299B2209250E7003CD7C3 /* AttackerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackerViewController.swift; sourceTree = "<group>"; };
 		860299B5209250E7003CD7C3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		860299B7209250EA003CD7C3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		860299BA209250EA003CD7C3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -59,6 +60,7 @@
 		860299D0209250EA003CD7C3 /* DemolitionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemolitionUITests.swift; sourceTree = "<group>"; };
 		860299D2209250EA003CD7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		860DA60D2097E0CA00B12F27 /* SigninViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
+		860DA60F209A874C00B12F27 /* DefenderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefenderViewController.swift; sourceTree = "<group>"; };
 		86A9BCD42096D541007CC548 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		AFB76F533638D41AE9EE605C /* Pods-Demolition.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demolition.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Demolition/Pods-Demolition.debug.xcconfig"; sourceTree = "<group>"; };
 		B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DemolitionUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,7 +137,8 @@
 			children = (
 				860299B0209250E7003CD7C3 /* AppDelegate.swift */,
 				860DA60D2097E0CA00B12F27 /* SigninViewController.swift */,
-				860299B2209250E7003CD7C3 /* ViewController.swift */,
+				860299B2209250E7003CD7C3 /* AttackerViewController.swift */,
+				860DA60F209A874C00B12F27 /* DefenderViewController.swift */,
 				86A9BCD42096D541007CC548 /* Constants.swift */,
 				860299B4209250E7003CD7C3 /* Main.storyboard */,
 				860299B7209250EA003CD7C3 /* Assets.xcassets */,
@@ -396,7 +399,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */,
-				860299B3209250E7003CD7C3 /* ViewController.swift in Sources */,
+				860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */,
+				860299B3209250E7003CD7C3 /* AttackerViewController.swift in Sources */,
 				86A9BCD52096D541007CC548 /* Constants.swift in Sources */,
 				860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */,
 			);
