@@ -42,6 +42,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
     let annotation = MKPointAnnotation()
+    
+    var hit = false;
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -130,9 +133,16 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         
-        let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
+        if hit {
+            let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+            hit = false;
+        } else {
+            let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+        }
     }
     
     func startScanning(timeout: Double) -> Bool {
@@ -179,6 +189,7 @@ extension AttackerViewController : CBPeripheralDelegate {
                 let data = "fire attacker " + name.text!
                 let data2 = data.data(using: .utf8)
                 
+                hit = true;
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
                 
                 
@@ -246,12 +257,8 @@ extension AttackerViewController : CBCentralManagerDelegate {
 
         // check if the discovered perif is on opposing team
         print("trying to connect")
-        
+
         peripherals.append(peripheral)
-        
-        let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
         
         centralManager?.connect(peripheral, options: nil)
         
