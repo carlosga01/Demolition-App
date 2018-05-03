@@ -8,14 +8,15 @@
 
 import UIKit
 import CoreBluetooth
+import MapKit
+import CoreLocation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
     
     var cachedPeripheralNames = Dictionary<String, String>()
-    var timer = Timer()
     
     var peripherals = [CBPeripheral]()
     var activePeripheral: CBPeripheral?
@@ -28,16 +29,51 @@ class ViewController: UIViewController {
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var team: UILabel!
+    @IBOutlet weak var ammoLeft: UILabel!
+    @IBOutlet weak var timeLeft: UILabel!
+    @IBOutlet weak var mapView: MKMapView!
+    
     var receivedName = "";
     var receivedTeam = "";
+    
+    var ammo = 5;
+    var currentTime = 1000;
+    var timer = Timer();
+    
+    let locationManager = CLLocationManager()
+    var centerLocation: CLLocationCoordinate2D?
+    let annotation = MKPointAnnotation()
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        scheduledTimerWithTimeInterval()
+
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
         team.text = receivedTeam;
+        ammoLeft.text = String(ammo);
+        timeLeft.text = String(currentTime);
+        
+        // Ask for Authorisation from the User.
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            print("location services on!")
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.startUpdatingLocation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: 42.3601, longitude: -71.0942)
+            self.mapView.addAnnotation(annotation);
+            
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -45,9 +81,46 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    func scheduledTimerWithTimeInterval(){
+        // Scheduling timer to Call the function "updateCounting" with the interval of 1 seconds
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounting), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateCounting(){
+        if currentTime > 0 {
+            currentTime -= 1;
+            timeLeft.text = String(currentTime)
+        } else {
+            let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        let location = locations.last! as CLLocation
+        
+        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        print("center")
+        print (center)
+        
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        
+        self.mapView.setRegion(region, animated: true)
+        self.mapView.showsUserLocation = true;
+    }
     
     @IBAction func fireButton(_ sender: UIButton) {
-        startScanning(timeout: SCAN_TIMEOUT)
+        if ammo > 0 {
+            ammo -= 1;
+            ammoLeft.text = String(ammo);
+            startScanning(timeout: SCAN_TIMEOUT)
+        } else {
+            let alertController = UIAlertController(title: "You are out of ammo!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
+        }
     }
     
     func initService() {
@@ -61,6 +134,10 @@ class ViewController: UIViewController {
     @objc private func scanTimeout() {
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
+        
+        let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
     }
     
     func startScanning(timeout: Double) -> Bool {
@@ -108,6 +185,10 @@ extension ViewController : CBPeripheralDelegate {
                 let data2 = data.data(using: .utf8)
                 
                 peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                
+                let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alertController, animated: true, completion: nil)
                 
             }
         }
@@ -177,6 +258,8 @@ extension ViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         centralManager?.connect(peripheral, options: nil)
+        
+        central.stopScan()
 
     }
 

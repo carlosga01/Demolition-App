@@ -22,6 +22,8 @@
 	<true/>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Use Bluetooth to Scan for Peripherals</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-peripheral</string>
