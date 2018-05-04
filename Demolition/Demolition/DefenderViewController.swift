@@ -11,8 +11,11 @@ import UIKit
 import CoreBluetooth
 import MapKit
 import CoreLocation
+import Firebase
 
 class DefenderViewController: UIViewController, CLLocationManagerDelegate {
+    
+    var ref: DatabaseReference!
     
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
@@ -44,9 +47,14 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     var hit = false;
     
+    var playerLatitude: DatabaseReference = DatabaseReference();
+    var playerLongitude: DatabaseReference = DatabaseReference();
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        ref = Database.database().reference()
         
         scheduledTimerWithTimeInterval()
 
@@ -71,6 +79,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.startUpdatingLocation()
         }
         
+        playerLatitude = self.ref.child("locations").child("defenders").child(name.text!).child("latitude")
+        playerLongitude = self.ref.child("locations").child("defenders").child(name.text!).child("longitude")
     }
     
     override func didReceiveMemoryWarning() {
@@ -99,6 +109,10 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        
+        //add center to db
+        self.playerLatitude.setValue(location.coordinate.latitude)
+        self.playerLongitude.setValue(location.coordinate.longitude)
         
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         

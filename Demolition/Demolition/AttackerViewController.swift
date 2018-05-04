@@ -11,9 +11,12 @@ import UIKit
 import CoreBluetooth
 import MapKit
 import CoreLocation
+import Firebase
 
 class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
+    var ref: DatabaseReference!
+
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
     
@@ -45,8 +48,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
     var hit = false;
     
+    var playerLatitude: DatabaseReference = DatabaseReference();
+    var playerLongitude: DatabaseReference = DatabaseReference();
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        ref = Database.database().reference()
         
         scheduledTimerWithTimeInterval()
 
@@ -73,6 +81,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             
         }
         
+        playerLatitude = self.ref.child("locations").child("attackers").child(name.text!).child("latitude")
+        playerLongitude = self.ref.child("locations").child("attackers").child(name.text!).child("longitude")
+        
     }
     
     
@@ -95,6 +106,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
         }
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -102,6 +114,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        
+        //add center to db
+        self.playerLatitude.setValue(location.coordinate.latitude)
+        self.playerLongitude.setValue(location.coordinate.longitude)
         
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         
