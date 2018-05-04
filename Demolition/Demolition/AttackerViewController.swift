@@ -38,11 +38,17 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     var ammo = 5;
     var currentTime = 1000;
     var timer = Timer();
-    
+    var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
-    let annotation = MKPointAnnotation()
-    
+    let annotation1 = MKPointAnnotation()
+    let annotation2 = MKPointAnnotation()
+    let annotation3 = MKPointAnnotation()
+    let annotation4 = MKPointAnnotation()
+    let annotation5 = MKPointAnnotation()
+    let annotation6 = MKPointAnnotation()
+    let annotation7 = MKPointAnnotation()
+
     var hit = false;
     
     override func viewDidLoad() {
@@ -68,8 +74,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
-            annotation.coordinate = CLLocationCoordinate2D(latitude: 42.3601, longitude: -71.0942)
-            self.mapView.addAnnotation(annotation);
+            annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+            annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+            annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+            annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+            annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
+            annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+            self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
             
         }
         
@@ -102,11 +114,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-        
-        self.mapView.setRegion(region, animated: true)
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005))
+        if !firstCheck{
+            self.mapView.setRegion(region, animated: true)
+            firstCheck = true;
+        }
         self.mapView.showsUserLocation = true;
+        
     }
     
     @IBAction func fireButton(_ sender: UIButton) {

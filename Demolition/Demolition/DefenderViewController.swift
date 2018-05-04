@@ -41,6 +41,13 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
+    let annotation1 = MKPointAnnotation()
+    let annotation2 = MKPointAnnotation()
+    let annotation3 = MKPointAnnotation()
+    let annotation4 = MKPointAnnotation()
+    let annotation5 = MKPointAnnotation()
+    let annotation6 = MKPointAnnotation()
+    let annotation7 = MKPointAnnotation()
     
     var hit = false;
     
@@ -69,6 +76,14 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
+            annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+            annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+            annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+            annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+            annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
+            annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+            self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
         }
         
     }
