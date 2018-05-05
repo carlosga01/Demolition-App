@@ -12,6 +12,7 @@ import CoreBluetooth
 import MapKit
 import CoreLocation
 import Firebase
+import FirebaseDatabase
 
 class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
