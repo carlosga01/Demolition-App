@@ -58,7 +58,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
-        print(receivedName);
         ammoLeft.text = String(ammo);
 
         // Ask for Authorisation from the User.
