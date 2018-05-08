@@ -16,19 +16,17 @@ import FirebaseDatabase
 
 class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
+    // DATABASE VARIABLES
     var ref: DatabaseReference!
-    
+    var playerLatitude: DatabaseReference = DatabaseReference();
+    var playerLongitude: DatabaseReference = DatabaseReference();
+
+    // BLUETOOTH VARIABLES
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
-    
-    var cachedPeripheralNames = Dictionary<String, String>()
-    
     var peripherals = [CBPeripheral]()
     var activePeripheral: CBPeripheral?
-    
     var characteristics = [String: CBCharacteristic]()
-    
-    let SCAN_TIMEOUT = 1.0
     
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var playerStatus: UILabel!
@@ -37,35 +35,31 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
     
-    var receivedName = "";
-    
-    var ammo = 5;
-    var currentTime = 1000;
-    var timer = Timer();
-    
+    // LOCATION VARIABLES
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
     
+    // APPLICATION VARIABLES
+    var receivedName = "";
+    let SCAN_TIMEOUT = 1.0
+    var ammo = 5;
+    var timer = Timer();
     var hit = false;
-    
-    var playerLatitude: DatabaseReference = DatabaseReference();
-    var playerLongitude: DatabaseReference = DatabaseReference();
-    
+    var endTime = 0.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        ref = Database.database().reference()
-        
+
         scheduledTimerWithTimeInterval()
 
+        ref = Database.database().reference()
+        
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
         print(receivedName);
         ammoLeft.text = String(ammo);
-        timeLeft.text = String(currentTime);
 
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -82,6 +76,14 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         
         playerLatitude = self.ref.child("locations").child("defenders").child(name.text!).child("latitude")
         playerLongitude = self.ref.child("locations").child("defenders").child(name.text!).child("longitude")
+        
+        // listen to endTime value from database
+        self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+            let value = snapshot.value as! TimeInterval
+            self.endTime = value
+        }) { (error) in
+            print(error.localizedDescription)
+        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -93,12 +95,17 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         // Scheduling timer to Call the function "updateCounting" with the interval of 1 seconds
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounting), userInfo: nil, repeats: true)
     }
-    
+
     @objc func updateCounting(){
-        if currentTime > 0 {
-            currentTime -= 1;
-            timeLeft.text = String(currentTime)
-        } else {
+        let currentTimestamp = NSDate().timeIntervalSince1970
+        let gameTimeRemaining = self.endTime - currentTimestamp
+        let interval = Int(gameTimeRemaining)
+        let seconds = interval % 60
+        let minutes = (interval / 60) % 60
+        let hours = (interval / 3600)
+        timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        
+        if gameTimeRemaining < 0 {
             let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
