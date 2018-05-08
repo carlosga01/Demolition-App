@@ -25,7 +25,7 @@
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Use Bluetooth to Scan for Peripherals</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Used to track location throughout game</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-peripheral</string>

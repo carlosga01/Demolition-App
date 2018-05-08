@@ -15,20 +15,17 @@ import Firebase
 import FirebaseDatabase
 
 class AttackerViewController: UIViewController, CLLocationManagerDelegate {
-    
+    // DATABASE VARIABLES
     var ref: DatabaseReference!
+    var playerLatitude: DatabaseReference = DatabaseReference();
+    var playerLongitude: DatabaseReference = DatabaseReference();
 
+    // BLUETOOTH VARIABLES
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
-    
-    var cachedPeripheralNames = Dictionary<String, String>()
-    
     var peripherals = [CBPeripheral]()
     var activePeripheral: CBPeripheral?
-    
     var characteristics = [String: CBCharacteristic]()
-    
-    let SCAN_TIMEOUT = 1.0
         
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
@@ -37,7 +34,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
     
-    var receivedName = "";
     
     var ammo = 5;
     var currentTime = 1000;
@@ -53,26 +49,27 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     let annotation6 = MKPointAnnotation()
     let annotation7 = MKPointAnnotation()
 
+    var receivedName = "";
+    let SCAN_TIMEOUT = 1.0
     var hit = false;
-    
-    var playerLatitude: DatabaseReference = DatabaseReference();
-    var playerLongitude: DatabaseReference = DatabaseReference();
-    
+    var endTime = 0.0
     var pressType = "";
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        ref = Database.database().reference()
-        
         scheduledTimerWithTimeInterval()
+        
+        ref = Database.database().reference()
 
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
         ammoLeft.text = String(ammo);
-        timeLeft.text = String(currentTime);
+        
+        //testing
+        playerStatus.text = "Dead";
         
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -99,6 +96,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         playerLatitude = self.ref.child("locations").child("attackers").child(name.text!).child("latitude")
         playerLongitude = self.ref.child("locations").child("attackers").child(name.text!).child("longitude")
         
+        // listen to endTime value from database
+        self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+            let value = snapshot.value as! TimeInterval
+            self.endTime = value
+        }) { (error) in
+            print(error.localizedDescription)
+        }
     }
     
     
@@ -113,15 +117,19 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     @objc func updateCounting(){
-        if currentTime > 0 {
-            currentTime -= 1;
-            timeLeft.text = String(currentTime)
-        } else {
+        let currentTimestamp = NSDate().timeIntervalSince1970
+        let gameTimeRemaining = self.endTime - currentTimestamp
+        let interval = Int(gameTimeRemaining)
+        let seconds = interval % 60
+        let minutes = (interval / 60) % 60
+        let hours = (interval / 3600)
+        timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        
+        if gameTimeRemaining < 0 {
             let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
         }
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -173,16 +181,21 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     @objc private func scanTimeout() {
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
+        if pressType == "fire" {
+            if hit {
+                let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alertController, animated: true, completion: nil)
+                hit = false;
+            } else {
+                let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alertController, animated: true, completion: nil)
+            }
+        }
         
-        if hit {
-            let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
-            hit = false;
-        } else {
-            let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+        else if pressType == "revive" {
+            
         }
     }
     
@@ -211,8 +224,6 @@ extension AttackerViewController : CBPeripheralDelegate {
             peripheral.discoverCharacteristics(nil, for: service)
         }
         
-//        centralManager?.stopScan()
-//        centralManager?.cancelPeripheralConnection(peripheral)
     }
     
     func peripheral(
@@ -226,21 +237,25 @@ extension AttackerViewController : CBPeripheralDelegate {
             let characteristic = characteristic as CBCharacteristic
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
                 
-                print("sending message")
                 if pressType == "fire" {
+                    print("firing")
                     let data = "fire attacker " + name.text!
                     let data2 = data.data(using: .utf8)
                     
                     hit = true;
                     peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                    
+                    self.centralManager?.cancelPeripheralConnection(peripheral)
+
                 }
                 
                 else if pressType == "revive" {
+                    print("reviving")
                     let data = "revive attacker " + name.text!
                     let data2 = data.data(using: .utf8)
                     
                     peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-                
+                    
                 }
                 
                 
@@ -287,12 +302,7 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
                     self.peripheralManager.respond(to: request, withResult: .success)
                     
                     print("You were killed by: " + fromName)
-                    self.peripheralManager.stopAdvertising()
-                    self.peripheralManager.removeAllServices()
                     
-                    initService()
-                    let advertisementData = "hello"
-                    peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
                 }
             }
             
