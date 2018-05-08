@@ -157,16 +157,21 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     @objc private func scanTimeout() {
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
+        if pressType == "fire" {
+            if hit {
+                let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alertController, animated: true, completion: nil)
+                hit = false;
+            } else {
+                let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alertController, animated: true, completion: nil)
+            }
+        }
         
-        if hit {
-            let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
-            hit = false;
-        } else {
-            let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+        else if pressType == "revive" {
+            
         }
     }
     
@@ -195,8 +200,6 @@ extension AttackerViewController : CBPeripheralDelegate {
             peripheral.discoverCharacteristics(nil, for: service)
         }
         
-//        centralManager?.stopScan()
-//        centralManager?.cancelPeripheralConnection(peripheral)
     }
     
     func peripheral(
@@ -210,21 +213,25 @@ extension AttackerViewController : CBPeripheralDelegate {
             let characteristic = characteristic as CBCharacteristic
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
                 
-                print("sending message")
                 if pressType == "fire" {
+                    print("firing")
                     let data = "fire attacker " + name.text!
                     let data2 = data.data(using: .utf8)
                     
                     hit = true;
                     peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                    
+                    self.centralManager?.cancelPeripheralConnection(peripheral)
+
                 }
                 
                 else if pressType == "revive" {
+                    print("reviving")
                     let data = "revive attacker " + name.text!
                     let data2 = data.data(using: .utf8)
                     
                     peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-                
+                    
                 }
                 
                 
@@ -271,12 +278,7 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
                     self.peripheralManager.respond(to: request, withResult: .success)
                     
                     print("You were killed by: " + fromName)
-                    self.peripheralManager.stopAdvertising()
-                    self.peripheralManager.removeAllServices()
                     
-                    initService()
-                    let advertisementData = "hello"
-                    peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
                 }
             }
             
