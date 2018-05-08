@@ -54,6 +54,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     var hit = false;
     var endTime = 0.0
     var pressType = "";
+    var customHash = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,6 +68,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         name.text = receivedName;
         ammoLeft.text = String(ammo);
+        
+        customHash = generateRandomString();
         
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -90,8 +93,15 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             
         }
         
-        playerLatitude = self.ref.child("locations").child("attackers").child(name.text!).child("latitude")
-        playerLongitude = self.ref.child("locations").child("attackers").child(name.text!).child("longitude")
+        
+        
+        let player = self.ref.child("Players").child(customHash)
+        player.child("Name").setValue(name.text!)
+        player.child("Team").setValue("Attacker")
+        player.child("Status").setValue("Alive")
+        
+        playerLatitude = player.child("Location").child("Longitude")
+        playerLongitude = player.child("Location").child("Latitiude")
         
         // listen to endTime value from database
         self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
@@ -100,6 +110,22 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         }) { (error) in
             print(error.localizedDescription)
         }
+    }
+    
+    func generateRandomString() -> String {
+        
+        let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        let len = UInt32(letters.length)
+        
+        var randomString = ""
+        
+        for _ in 0 ..< 8 {
+            let rand = arc4random_uniform(len)
+            var nextChar = letters.character(at: Int(rand))
+            randomString += NSString(characters: &nextChar, length: 1) as String
+        }
+        
+        return randomString
     }
     
     
@@ -253,6 +279,7 @@ extension AttackerViewController : CBPeripheralDelegate {
                     
                     peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
                     
+                    self.centralManager?.cancelPeripheralConnection(peripheral)
                 }
                 
                 
@@ -271,7 +298,7 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
             
             initService()
             
-            let advertisementData = "hello"
+            let advertisementData = customHash;
             
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }
@@ -336,10 +363,13 @@ extension AttackerViewController : CBCentralManagerDelegate {
         print("trying to connect")
 
         peripherals.append(peripheral)
+        print( "AD-> ")
+//        print(peripherals)
+        print(advertisementData)
         
-        centralManager?.connect(peripheral, options: nil)
-        
-        central.stopScan()
+//        centralManager?.connect(peripheral, options: nil)
+//
+//        central.stopScan()
 
     }
 
