@@ -68,9 +68,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         name.text = receivedName;
         ammoLeft.text = String(ammo);
         
-        //testing
-        playerStatus.text = "Dead";
-        
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
         
