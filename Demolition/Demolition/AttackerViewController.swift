@@ -12,6 +12,7 @@ import CoreBluetooth
 import MapKit
 import CoreLocation
 import Firebase
+import FirebaseDatabase
 
 class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
@@ -56,6 +57,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
     var playerLatitude: DatabaseReference = DatabaseReference();
     var playerLongitude: DatabaseReference = DatabaseReference();
+    
+    var pressType = "";
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -141,8 +144,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
+    @IBAction func reviveButton(_ sender: UIButton) {
+        pressType = "revive"
+        startScanning(timeout: SCAN_TIMEOUT)
+    }
+    
     @IBAction func fireButton(_ sender: UIButton) {
         if ammo > 0 {
+            pressType = "fire"
             ammo -= 1;
             ammoLeft.text = String(ammo);
             startScanning(timeout: SCAN_TIMEOUT)
@@ -216,13 +225,23 @@ extension AttackerViewController : CBPeripheralDelegate {
             print("iterating thru chars")
             let characteristic = characteristic as CBCharacteristic
             if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
+                
                 print("sending message")
+                if pressType == "fire" {
+                    let data = "fire attacker " + name.text!
+                    let data2 = data.data(using: .utf8)
+                    
+                    hit = true;
+                    peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                }
                 
-                let data = "fire attacker " + name.text!
-                let data2 = data.data(using: .utf8)
+                else if pressType == "revive" {
+                    let data = "revive attacker " + name.text!
+                    let data2 = data.data(using: .utf8)
+                    
+                    peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
                 
-                hit = true;
-                peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                }
                 
                 
             }
@@ -270,6 +289,25 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
                     print("You were killed by: " + fromName)
                     self.peripheralManager.stopAdvertising()
                     self.peripheralManager.removeAllServices()
+                    
+                    initService()
+                    let advertisementData = "hello"
+                    peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
+                }
+            }
+            
+            else if messageType == "revive" {
+                if fromTeam == "attacker" {
+                    if playerStatus.text == "Dead" {
+                        
+                        playerStatus.text = "Alive"
+                        fireButton.isEnabled = true;
+                        
+                        self.peripheralManager.respond(to: request, withResult: .success)
+                        
+                        print("You were revived by: " + fromName)
+                        
+                    }
                 }
             }
             
