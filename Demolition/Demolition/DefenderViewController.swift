@@ -53,7 +53,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     var timer = Timer();
     var hit = false;
     var endTime = 0.0
-    
+    var firstCheck = false;
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -131,14 +132,17 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
+        
+        if !firstCheck{
+            self.mapView.setRegion(region, animated: true)
+            firstCheck = true;
+        }
         
         //add center to db
         self.playerLatitude.setValue(location.coordinate.latitude)
         self.playerLongitude.setValue(location.coordinate.longitude)
         
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-        
-        self.mapView.setRegion(region, animated: true)
         self.mapView.showsUserLocation = true;
     }
     
