@@ -1,4 +1,5 @@
 PODS:
+  - DynamicBlurView (2.0.2)
   - Firebase/Core (4.13.0):
     - FirebaseAnalytics (= 4.2.0)
     - FirebaseCore (= 4.0.20)
@@ -27,13 +28,17 @@ PODS:
     - nanopb/encode (= 0.3.8)
   - nanopb/decode (0.3.8)
   - nanopb/encode (0.3.8)
+  - PopupDialog (0.7.1):
+    - DynamicBlurView (~> 2.0)
 
 DEPENDENCIES:
   - Firebase/Core
   - Firebase/Database
+  - PopupDialog (~> 0.7)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - DynamicBlurView
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -42,8 +47,10 @@ SPEC REPOS:
     - GoogleToolboxForMac
     - leveldb-library
     - nanopb
+    - PopupDialog
 
 SPEC CHECKSUMS:
+  DynamicBlurView: aa6db4defc6e537eb86fc5e58dd3991666178399
   Firebase: 5ec5e863d269d82d66b4bf56856726f8fb8f0fb3
   FirebaseAnalytics: 7ef69e76a5142f643aeb47c780e1cdce4e23632e
   FirebaseCore: 90cb1c53d69b556f112a1bf72b5fcfaad7650790
@@ -52,7 +59,8 @@ SPEC CHECKSUMS:
   GoogleToolboxForMac: 91c824d21e85b31c2aae9bb011c5027c9b4e738f
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
+  PopupDialog: 39598b7d41719f5c025b4b70e62728bae7734fef
 
-PODFILE CHECKSUM: dac13374775af2bda40debaf0ce9ab071f16b859
+PODFILE CHECKSUM: cdf2e5d5cb81e1350daaf4a7fb8b125a44b80cd2
 
 COCOAPODS: 1.5.0

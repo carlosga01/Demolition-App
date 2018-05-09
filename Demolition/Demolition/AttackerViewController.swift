@@ -13,6 +13,7 @@ import MapKit
 import CoreLocation
 import Firebase
 import FirebaseDatabase
+import PopupDialog
 
 class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     // DATABASE VARIABLES
@@ -54,7 +55,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     var hit = false;
     var endTime = 0.0
     var pressType = "";
+    
+    
     var customHash = ""
+    var nearbyDevices = Set<String>();
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -181,6 +185,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     @IBAction func fireButton(_ sender: UIButton) {
+
         if ammo > 0 {
             pressType = "fire"
             ammo -= 1;
@@ -201,26 +206,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         peripheralManager.add(serialService)
     }
     
-    @objc private func scanTimeout() {
-        print("[DEBUG] Scanning stopped")
-        self.centralManager?.stopScan()
-        if pressType == "fire" {
-            if hit {
-                let alertController = UIAlertController(title: "Hit!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-                self.present(alertController, animated: true, completion: nil)
-                hit = false;
-            } else {
-                let alertController = UIAlertController(title: "Miss!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-                self.present(alertController, animated: true, completion: nil)
-            }
-        }
-        
-        else if pressType == "revive" {
-            
-        }
-    }
     
     func startScanning(timeout: Double) -> Bool {
         if centralManager?.state != .poweredOn {
@@ -237,55 +222,79 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         
         return true
     }
-}
-
-extension AttackerViewController : CBPeripheralDelegate {
-    func peripheral( _ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        print("did discover services")
-        for service in peripheral.services! {
-            print("iterating thru services")
-            peripheral.discoverCharacteristics(nil, for: service)
-        }
+    
+    @objc private func scanTimeout() {
+        print("[DEBUG] Scanning stopped")
+        self.centralManager?.stopScan()
         
+        postScanProtocol()
     }
     
-    func peripheral(
-        _ peripheral: CBPeripheral,
-        didDiscoverCharacteristicsFor service: CBService,
-        error: Error?) {
+    func postScanProtocol() {
         
-        print("did discover characteristics")
-        for characteristic in service.characteristics! {
-            print("iterating thru chars")
-            let characteristic = characteristic as CBCharacteristic
-            if (characteristic.uuid.isEqual(Constants.RX_UUID)) {
-                
-                if pressType == "fire" {
-                    print("firing")
-                    let data = "fire attacker " + name.text!
-                    let data2 = data.data(using: .utf8)
+        //delete this shit later
+        nearbyDevices.insert("1BZ7zBt9")
+        
+        if nearbyDevices.count > 0 {
+            let playersRef = self.ref.child("Players")
+            
+            if pressType == "fire" {
+                var inRangeNames = [String : String]()
+                for hash in nearbyDevices {
+                    let foundRef = playersRef.child(hash)
                     
-                    hit = true;
-                    peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-                    
-                    self.centralManager?.cancelPeripheralConnection(peripheral)
-
+                    foundRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                        // Get user value
+                        let value = snapshot.value as? NSDictionary
+                        let name = value?["Name"] as? String ?? ""
+                        let team = value?["Team"] as? String ?? ""
+                        let status = value?["Status"] as? String ?? ""
+                        
+                        if team == "Defender" {
+                            if status == "Alive" {
+                                inRangeNames[name] = hash
+                            }
+                        }
+                        
+                    }) { (error) in
+                        print(error.localizedDescription)
+                    }
                 }
                 
-                else if pressType == "revive" {
-                    print("reviving")
-                    let data = "revive attacker " + name.text!
-                    let data2 = data.data(using: .utf8)
-                    
-                    peripheral.writeValue(data2!, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-                    
-                    self.centralManager?.cancelPeripheralConnection(peripheral)
+                if inRangeNames.count > 0 {
+                    self.generateSelectionPopup(title: "Enemies in Range", message: "Select an enemy to shoot", names: Array(inRangeNames.keys))
+                } else {
+                    print("You missed!")
                 }
-                
                 
             }
+            else if pressType == "revive" {}
+            else if pressType == "capture" {}
+        } else {
+            if pressType == "fire" {}
+            else if pressType == "revive" {}
+            else if pressType == "capture" {}
         }
         
+        nearbyDevices.removeAll()
+    }
+    
+    func  generateSelectionPopup(title: String, message: String, names: [String]) {
+        // Prepare the popup assets
+        
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message, image: nil)
+        
+        var buttons = [PopupDialogButton]()
+        for name in names {
+            let button = DefaultButton(title: name, action: nil)
+            buttons.append(button)
+        }
+        
+        popup.addButtons(buttons)
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
     }
 }
 
@@ -294,7 +303,7 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         
         if (peripheral.state == .poweredOn){
-            print("peripheral state: on")
+            print("[DEBUG] peripheral state: on")
             
             initService()
             
@@ -303,101 +312,25 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }
     }
-    
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        
-        print("didReceiveWrite")
-        for request in requests {
-//            if let value = request.value {
-//                print("request value: ", value)
-//            }
-            let messageText = String(data: request.value!, encoding: String.Encoding.utf8) as String?
-            
-            let split = messageText?.components(separatedBy: " ")
-            
-            let messageType = split![0]
-            let fromTeam = split![1]
-            let fromName = split![2]
-            
-            if messageType == "fire" {
-                if fromTeam != "attacker" {
-                    playerStatus.text = "Dead"
-                    fireButton.isEnabled = false;
-                    self.peripheralManager.respond(to: request, withResult: .success)
-                    
-                    print("You were killed by: " + fromName)
-                    
-                }
-            }
-            
-            else if messageType == "revive" {
-                if fromTeam == "attacker" {
-                    if playerStatus.text == "Dead" {
-                        
-                        playerStatus.text = "Alive"
-                        fireButton.isEnabled = true;
-                        
-                        self.peripheralManager.respond(to: request, withResult: .success)
-                        
-                        print("You were revived by: " + fromName)
-                        
-                    }
-                }
-            }
-            
-        }
-    }
 }
 
 extension AttackerViewController : CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if (central.state == .poweredOn){
-            print("central state: on")
+            print("[DEBUG] central state: on")
             
         }
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-
-        // check if the discovered perif is on opposing team
-        print("trying to connect")
-
+        
         peripherals.append(peripheral)
-        print( "AD-> ")
-//        print(peripherals)
-        print(advertisementData)
-        
-//        centralManager?.connect(peripheral, options: nil)
-//
-//        central.stopScan()
 
-    }
-
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        
-        activePeripheral = peripheral
-            
-        activePeripheral?.delegate = self
-        activePeripheral?.discoverServices([Constants.SERVICE_UUID])
-        central.stopScan();
-        print("connected");
-
-    }
-    
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        
-        var text = "[DEBUG] Disconnected from peripheral: \(peripheral.identifier.uuidString)"
-        
-        if error != nil {
-            text += ". Error: \(error!.localizedDescription)"
+        if advertisementData["kCBAdvDataLocalName"] != nil {
+            nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
         }
         
-        print(text)
-        
-        activePeripheral?.delegate = nil
-        activePeripheral = nil
-        characteristics.removeAll(keepingCapacity: false)
-        
+
     }
 
     

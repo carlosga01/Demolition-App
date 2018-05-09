@@ -247,7 +247,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHH-jl-niz">
-                                <rect key="frame" x="254" y="189" width="50.666666666666686" height="30"/>
+                                <rect key="frame" x="253.99999999999997" y="189" width="50.666666666666657" height="30"/>
                                 <state key="normal" title="REVIVE"/>
                                 <connections>
                                     <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MSg-QA-ouZ"/>
@@ -299,7 +299,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <userGuides>
-                            <userLayoutGuide location="189" affinity="minX"/>
+                            <userLayoutGuide location="187" affinity="minX"/>
                         </userGuides>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RlF-hE-Azc">
@@ -313,7 +313,7 @@
                                 <state key="normal" title="FIRE"/>
                                 <connections>
                                     <action selector="fireButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3vc-xM-4uP"/>
-                                    <action selector="fireButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="Ybq-fs-IUS"/>
+                                    <action selector="fireButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="tb8-i7-2X6"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="top" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="stF-2i-qRg" userLabel="Game Info">

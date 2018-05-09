@@ -21,3 +21,4 @@ end
 
 pod 'Firebase/Core'
 pod 'Firebase/Database'
+pod 'PopupDialog', '~> 0.7'
