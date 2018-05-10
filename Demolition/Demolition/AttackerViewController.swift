@@ -186,6 +186,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
+    @IBAction func reviveButton(_ sender: UIButton) {
+        pressType = "revive"
+        startScanning(timeout: SCAN_TIMEOUT)
+    }
     
     @IBAction func fireButton(_ sender: UIButton) {
         if ammo > 0 {
@@ -194,9 +198,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             ammoLeft.text = String(ammo);
             startScanning(timeout: SCAN_TIMEOUT)
         } else {
-            let alertController = UIAlertController(title: "You are out of ammo!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
         }
     }
     
@@ -256,19 +258,38 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
                     if inRangeNames.count > 0 {
                         self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
                     }
-                    
                 })
                 
             }
             else if pressType == "revive" {
+                var inRangeNames = [String : String]()
                 
+                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                    
+                    for player in players {
+                        let team = player[1]
+                        let status = player[2]
+                        let name = player[0]
+                        let hash = player[3]
+                        
+                        if team == "Attacker" && status == "Dead" {
+                            inRangeNames[name] = hash
+                        }
+                    }
+                    
+                    if inRangeNames.count > 0 {
+                        self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                    }
+                })
             }
             else if pressType == "capture" {}
         } else {
             if pressType == "fire" {
                 self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
             }
-            else if pressType == "revive" {}
+            else if pressType == "revive" {
+                self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+            }
             else if pressType == "capture" {}
         }
         
@@ -287,6 +308,28 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             let button = DefaultButton(title: name) {
                 let hash = names[name]
                 self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+            }
+            buttons.append(button)
+        }
+        
+        popup.addButtons(buttons)
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
+    }
+    
+    func  generateRevivePopup(title: String, message: String, names: [String:String]) {
+        // Prepare the popup assets
+        
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message, image: nil)
+        
+        var buttons = [PopupDialogButton]()
+        for name in names.keys {
+            
+            let button = DefaultButton(title: name) {
+                let hash = names[name]
+                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
             }
             buttons.append(button)
         }
