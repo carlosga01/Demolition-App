@@ -59,8 +59,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
 
 =======
     var pressType = "";
-    
-    
+
     var customHash = ""
     var nearbyDevices = Set<String>();
     
@@ -101,8 +100,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
             
         }
-        
-        
         
         let player = self.ref.child("Players").child(customHash)
         player.child("Name").setValue(name.text!)
@@ -213,7 +210,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     func startScanning(timeout: Double) -> Bool {
         if centralManager?.state != .poweredOn {
-            
             print("[ERROR] Couldn´t start scanning")
             return false
         }
@@ -236,44 +232,33 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     func postScanProtocol() {
         
-        //delete this shit later
-        nearbyDevices.insert("gccqzlp6")
+        // TODO: TO GO OVER POPUP LOGIC.
         
+        // Check for nearby devices
         if nearbyDevices.count > 0 {
-            let playersRef = self.ref.child("Players")
             
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
-                
+                print("hello world")
                 for hash in self.nearbyDevices {
-                    let foundRef = playersRef.child(hash)
                     
-                    var name: String?
-                    var team: String?
-                    var status: String?
+                    let foundRef = self.ref.child("Players").child(hash)
                     
-                    foundRef.observe(DataEventType.value, with: { (snapshot) in
-                        let value = snapshot.value as? [String : AnyObject] ?? [:]
-                        name = value["Name"] as? String
-                        team = value["Team"] as? String
-                        status = value["Status"] as? String
-                        print(name, team, status)
-                    })
-                    
-                    if team == "Attacker" {
-                        if status == "Alive" {
+                    readFromDatabase(dbReference: foundRef, customHash: hash, callback: { (name, team, status) -> Void in
+                        print("Name: \(name) Team: \(team) Status: \(status)")
+                        if team == "Attacker" && status == "Alive" {
                             //TODO: check if person is being aimed at
-                            inRangeNames[name!] = hash
+                            inRangeNames[name] = hash
                         }
-                    }
+                        print(inRangeNames, inRangeNames.count)
+                        if inRangeNames.count > 0 {
+                            self.generateSelectionPopup(title: "Hit!", message: "Select an enemy to kill:", names: Array(inRangeNames.keys))
+                        } else {
+                            self.generateSelectionPopup(title: "Miss!", message: "There was no one in range.", names: [])
+                        }
+                        
+                    })
                 }
-
-                if inRangeNames.count > 0 {
-                    self.generateSelectionPopup(title: "Hit!", message: "Select an enemy to kill:", names: Array(inRangeNames.keys))
-                } else {
-                    self.generateSelectionPopup(title: "Miss!", message: "There was no one in range.", names: [])
-                }
-                
             }
             else if pressType == "revive" {}
             else if pressType == "capture" {}
@@ -302,6 +287,20 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         
         // Present dialog
         self.present(popup, animated: true, completion: nil)
+    }
+    
+    func readFromDatabase(dbReference: DatabaseReference, customHash: String, callback: @escaping (_ name: String, _ team: String, _ status: String)->Void) {
+        
+        // READ VALUE FROM DATABASE
+        dbReference.observe(DataEventType.value, with: { (snapshot) in
+            let value = snapshot.value as? [String : AnyObject] ?? [:]
+            let name = value["Name"] as? String
+            let team = value["Team"] as? String
+            let status = value["Status"] as? String
+            print(name!, team!, status!)
+            
+            callback(name!, team!, status!)
+        })
     }
 }
 
