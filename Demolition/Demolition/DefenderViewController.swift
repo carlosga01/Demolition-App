@@ -255,6 +255,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
                     
                     if inRangeNames.count > 0 {
                         self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
+                    } else {
+                        self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
                     }
                     
                 })
@@ -278,6 +280,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
                     
                     if inRangeNames.count > 0 {
                         self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                    } else {
+                        self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
                     }
                 })
             }
