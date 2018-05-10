@@ -89,6 +89,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
             annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation1.title = "James"
             annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
             annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
             annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
@@ -164,6 +165,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     func mapView(_ mapView: MKMapView!, viewFor annotation: MKAnnotation!) -> MKAnnotationView! {
         if annotation.isKind(of: MKUserLocation.self) {
             return nil
+        }
+        
+        if annotation.title! != nil{
+            print (annotation.title!!)
         }
         
         let annotationReuseId = "Place"

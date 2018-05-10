@@ -54,16 +54,10 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     let SCAN_TIMEOUT = 1.0
     var hit = false;
     var endTime = 0.0
-<<<<<<< HEAD
-    var firstCheck = false;
-
-=======
     var pressType = "";
-
     var customHash = ""
     var nearbyDevices = Set<String>();
     
->>>>>>> a5daf0d36ecd2813ee9bb41ec3fd9886608d658c
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -91,6 +85,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
             annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation1.title = "James"
             annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
             annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
             annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
@@ -166,12 +161,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-<<<<<<< HEAD
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
-=======
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005))
->>>>>>> a5daf0d36ecd2813ee9bb41ec3fd9886608d658c
-        
+
         if !firstCheck{
             self.mapView.setRegion(region, animated: true)
             firstCheck = true;
