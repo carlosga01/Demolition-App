@@ -15,7 +15,7 @@ import Firebase
 import FirebaseDatabase
 import PopupDialog
 
-class AttackerViewController: UIViewController, CLLocationManagerDelegate {
+class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     // DATABASE VARIABLES
     var ref: DatabaseReference!
     var playerLatitude: DatabaseReference = DatabaseReference();
@@ -42,15 +42,18 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
-    let annotation1 = MKPointAnnotation()
-    let annotation2 = MKPointAnnotation()
-    let annotation3 = MKPointAnnotation()
-    let annotation4 = MKPointAnnotation()
-    let annotation5 = MKPointAnnotation()
-    let annotation6 = MKPointAnnotation()
-    let annotation7 = MKPointAnnotation()
+    let annotation1 = CustomPointAnnotation()
+    let annotation2 = CustomPointAnnotation()
+    let annotation3 = CustomPointAnnotation()
+    let annotation4 = CustomPointAnnotation()
+    let annotation5 = CustomPointAnnotation()
+    let annotation6 = CustomPointAnnotation()
+    let annotation7 = CustomPointAnnotation()
+    var anView = MKAnnotationView();
     
+
     var receivedName = "";
+    var receivedCustomHash = "";
     let SCAN_TIMEOUT = 1.0
     let SCAN_TIMEOUT_CAPTURE = 5.0
     var hit = false;
@@ -63,7 +66,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.mapView.delegate = self
         scheduledTimerWithTimeInterval()
         
         ref = Database.database().reference()
@@ -88,14 +91,26 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
             annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation1.imageName = "pin"
             annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+            annotation2.imageName = "pin"
+
             annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+            annotation3.imageName = "pin"
+
             annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+            annotation4.imageName = "pin"
+
             annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+            annotation5.imageName = "pin"
+
             annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
+            annotation6.imageName = "pin"
+
             annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+            annotation7.imageName = "pin"
+
             self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
-            
         }
         
         let player = self.ref.child("Players").child(customHash)
@@ -113,9 +128,17 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         
-        playerLatitude = player.child("Location").child("Latitude")
-        playerLongitude = player.child("Location").child("Longitude")
+        let playerLocationListener = self.ref.child("Players")
+        playerLocationListener.observe(DataEventType.value){ (snapshot) in
+            let players = snapshot.value as? [String : [String : Any]]
+            for player in players!{
+                let location = player.value["Location"]!
+            }
+        }
         
+        playerLatitude = player.child("Location").child("Longitude")
+        playerLongitude = player.child("Location").child("Latitiude")
+
         // listen to endTime value from database
         self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
             let value = snapshot.value as! TimeInterval
@@ -146,6 +169,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+
     
     func scheduledTimerWithTimeInterval(){
         // Scheduling timer to Call the function "updateCounting" with the interval of 1 seconds
@@ -168,12 +192,42 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
+    func mapView(_ mapView: MKMapView!, viewFor annotation: MKAnnotation!) -> MKAnnotationView! {
+        if annotation.isKind(of: MKUserLocation.self) {
+            return nil
+        }
+        
+        if annotation.title! != nil{
+            print (annotation.title!!)
+        }
+        
+        let annotationReuseId = "Place"
+        var anView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationReuseId)
+        if anView == nil {
+            anView = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationReuseId)
+        } else {
+            anView?.annotation = annotation
+        }
+        let cpa = annotation as! CustomPointAnnotation
+        anView?.image = UIImage(named:cpa.imageName)
+        anView?.frame.size = CGSize(width: 30, height: 30);
+        anView?.backgroundColor = UIColor.clear
+        anView?.canShowCallout = false
+        return anView
+        
+//        anView!.image = UIImage(named: "pin")
+//        anView?.frame.size = CGSize(width: 30, height: 30);
+//        anView?.backgroundColor = UIColor.clear
+//        anView?.canShowCallout = false
+//        return anView
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005))
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
         
         if !firstCheck{
             self.mapView.setRegion(region, animated: true)
@@ -446,7 +500,10 @@ extension AttackerViewController : CBCentralManagerDelegate {
         
         
     }
-    
+ 
+    class CustomPointAnnotation: MKPointAnnotation {
+        var imageName: String!
+    }
     
 }
 
