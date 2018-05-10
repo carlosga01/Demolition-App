@@ -467,8 +467,15 @@
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="SoG-GS-MV8" userLabel="Bottom Buttons">
                                 <rect key="frame" x="0.0" y="682" width="375" height="96"/>
                                 <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHH-jl-niz">
+                                        <rect key="frame" x="0.0" y="0.0" width="125" height="96"/>
+                                        <state key="normal" title="REVIVE"/>
+                                        <connections>
+                                            <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kBs-AL-UM4"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vy7-up-sUj">
-                                        <rect key="frame" x="0.0" y="0.0" width="187.66666666666666" height="96"/>
+                                        <rect key="frame" x="125" y="0.0" width="125" height="96"/>
                                         <color key="backgroundColor" red="0.4392156862745098" green="0.32941176470588235" blue="0.2196078431372549" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="96" id="Zqm-QJ-VaU"/>
@@ -481,7 +488,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bhz-ZC-XI8">
-                                        <rect key="frame" x="187.66666666666663" y="0.0" width="187.33333333333337" height="96"/>
+                                        <rect key="frame" x="250" y="0.0" width="125" height="96"/>
                                         <state key="normal" title="Capture"/>
                                         <connections>
                                             <action selector="captureButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UuB-mD-yRB"/>
@@ -556,29 +563,18 @@
                                 <rect key="frame" x="0.0" y="228.33333333333334" width="375" height="453.66666666666663"/>
                             </mapView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alive" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rLF-Zm-Bmd">
-                                <rect key="frame" x="48.000000000000007" y="181" width="97.666666666666686" height="47"/>
+                                <rect key="frame" x="139" y="181" width="97.666666666666686" height="47"/>
                                 <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="36"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHH-jl-niz">
-                                <rect key="frame" x="227" y="181.33333333333334" width="100" height="47"/>
-                                <state key="normal" title="REVIVE"/>
-                                <connections>
-                                    <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kBs-AL-UM4"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.74901960779999999" green="0.69019607839999997" blue="0.51372549020000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="rLF-Zm-Bmd" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-90.666666666666671" id="3io-4r-z24"/>
+                            <constraint firstItem="rLF-Zm-Bmd" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="0.33333333333334281" id="3io-4r-z24"/>
                             <constraint firstItem="HYb-vP-Ji8" firstAttribute="top" secondItem="VDi-z5-4W3" secondAttribute="bottom" constant="16" id="7hf-pT-xSV"/>
-                            <constraint firstItem="SHH-jl-niz" firstAttribute="top" secondItem="HYb-vP-Ji8" secondAttribute="bottom" constant="8" id="KW4-Ye-ADH"/>
                             <constraint firstAttribute="trailing" secondItem="SoG-GS-MV8" secondAttribute="trailing" id="Ksg-qa-eie"/>
                             <constraint firstItem="3AU-lP-Say" firstAttribute="top" secondItem="rLF-Zm-Bmd" secondAttribute="bottom" id="OOK-ZA-ABj"/>
-                            <constraint firstItem="3AU-lP-Say" firstAttribute="top" secondItem="SHH-jl-niz" secondAttribute="bottom" id="OfI-8q-4ZV"/>
-                            <constraint firstItem="SHH-jl-niz" firstAttribute="leading" secondItem="rLF-Zm-Bmd" secondAttribute="trailing" constant="81.333333333333314" id="R7e-1c-j9f"/>
-                            <constraint firstAttribute="trailing" secondItem="SHH-jl-niz" secondAttribute="trailing" constant="48" id="V6t-gr-7Wf"/>
                             <constraint firstItem="Fu9-1v-kFV" firstAttribute="top" secondItem="SoG-GS-MV8" secondAttribute="bottom" id="WId-hs-3ZG"/>
                             <constraint firstItem="SoG-GS-MV8" firstAttribute="top" secondItem="3AU-lP-Say" secondAttribute="bottom" id="WPb-KB-PEd"/>
                             <constraint firstItem="SoG-GS-MV8" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ayv-UP-47O"/>
