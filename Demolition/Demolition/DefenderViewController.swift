@@ -101,6 +101,16 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         player.child("Team").setValue("Defender")
         player.child("Status").setValue("Alive")
         
+        let playerStatusListener = self.ref.child("Players").child(customHash).child("Status")
+        playerStatusListener.observe(DataEventType.value) { (snapshot) in
+            let status = snapshot.value as? String;
+            if status == "Alive" {
+                self.playerStatus.text = "Alive"
+            } else if status == "Dead" {
+                self.playerStatus.text = "Dead"
+            }
+        }
+        
         playerLatitude = player.child("Location").child("Longitude")
         playerLongitude = player.child("Location").child("Latitiude")
         
@@ -223,54 +233,85 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     func postScanProtocol() {
         
-        // TODO: TO GO OVER POPUP LOGIC.
-        
         // Check for nearby devices
         if nearbyDevices.count > 0 {
             
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
-                print("hello world")
-                for hash in self.nearbyDevices {
                     
-                    let foundRef = self.ref.child("Players").child(hash)
+                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
                     
-                    readFromDatabase(dbReference: foundRef, customHash: hash, callback: { (name, team, status) -> Void in
-                        print("Name: \(name) Team: \(team) Status: \(status)")
+                    for player in players {
+                        let team = player[1]
+                        let status = player[2]
+                        let name = player[0]
+                        let hash = player[3]
+                        
                         if team == "Attacker" && status == "Alive" {
                             //TODO: check if person is being aimed at
                             inRangeNames[name] = hash
                         }
-                        print(inRangeNames, inRangeNames.count)
-                        if inRangeNames.count > 0 {
-                            self.generateSelectionPopup(title: "Hit!", message: "Select an enemy to kill:", names: Array(inRangeNames.keys))
-                        } else {
-                            self.generateSelectionPopup(title: "Miss!", message: "There was no one in range.", names: [])
-                        }
-                        
-                    })
-                }
+                    }
+                    
+                    if inRangeNames.count > 0 {
+                        self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
+                    } else {
+                        self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                    }
+                    
+                })
+                
             }
-            else if pressType == "revive" {}
+            else if pressType == "revive" {
+                var inRangeNames = [String : String]()
+                
+                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                    
+                    for player in players {
+                        let team = player[1]
+                        let status = player[2]
+                        let name = player[0]
+                        let hash = player[3]
+                        
+                        if team == "Attacker" && status == "Dead" {
+                            inRangeNames[name] = hash
+                        }
+                    }
+                    
+                    if inRangeNames.count > 0 {
+                        self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                    } else {
+                        self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                    }
+                })
+            }
             else if pressType == "capture" {}
         } else {
-            if pressType == "fire" {}
-            else if pressType == "revive" {}
+            if pressType == "fire" {
+                self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+            }
+            else if pressType == "revive" {
+                self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+            }
             else if pressType == "capture" {}
         }
         
         nearbyDevices.removeAll()
     }
     
-    func  generateSelectionPopup(title: String, message: String, names: [String]) {
+    func  generateKillPopup(title: String, message: String, names: [String:String]) {
         // Prepare the popup assets
         
         // Create the dialog
         let popup = PopupDialog(title: title, message: message, image: nil)
         
         var buttons = [PopupDialogButton]()
-        for name in names {
-            let button = DefaultButton(title: name, action: nil)
+        for name in names.keys {
+            
+            let button = DefaultButton(title: name) {
+                let hash = names[name]
+                self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+            }
             buttons.append(button)
         }
         
@@ -280,18 +321,54 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         self.present(popup, animated: true, completion: nil)
     }
     
-    func readFromDatabase(dbReference: DatabaseReference, customHash: String, callback: @escaping (_ name: String, _ team: String, _ status: String)->Void) {
+    func  generateRevivePopup(title: String, message: String, names: [String:String]) {
+        // Prepare the popup assets
         
-        // READ VALUE FROM DATABASE
-        dbReference.observe(DataEventType.value, with: { (snapshot) in
-            let value = snapshot.value as? [String : AnyObject] ?? [:]
-            let name = value["Name"] as? String
-            let team = value["Team"] as? String
-            let status = value["Status"] as? String
-            print(name!, team!, status!)
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message, image: nil)
+        
+        var buttons = [PopupDialogButton]()
+        for name in names.keys {
             
-            callback(name!, team!, status!)
+            let button = DefaultButton(title: name) {
+                let hash = names[name]
+                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
+            }
+            buttons.append(button)
+        }
+        
+        popup.addButtons(buttons)
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
+    }
+    
+    func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
+        
+        let dbReference = self.ref.child("Players")
+        // READ VALUE FROM DATABASE
+        
+        dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            var players = [[String]]()
+            
+            let values = snapshot.value as? [String:[String:Any]]
+//            print(hashList)
+            for hash in hashList {
+                
+                let player = values![hash]
+                
+                let name = player!["Name"] as! String
+                let team = player!["Team"] as! String
+                let status = player!["Status"] as! String
+                
+                players.append([name, team, status, hash])
+            }
+            
+            callback(players)
         })
+        
+        
     }
 }
 

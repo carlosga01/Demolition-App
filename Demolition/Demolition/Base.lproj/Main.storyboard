@@ -250,7 +250,7 @@
                                 <rect key="frame" x="253.99999999999997" y="189" width="50.666666666666657" height="30"/>
                                 <state key="normal" title="REVIVE"/>
                                 <connections>
-                                    <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MSg-QA-ouZ"/>
+                                    <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kBs-AL-UM4"/>
                                 </connections>
                             </button>
                         </subviews>

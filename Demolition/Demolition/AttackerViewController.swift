@@ -20,14 +20,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var ref: DatabaseReference!
     var playerLatitude: DatabaseReference = DatabaseReference();
     var playerLongitude: DatabaseReference = DatabaseReference();
-
+    
     // BLUETOOTH VARIABLES
     var centralManager: CBCentralManager?
     var peripheralManager = CBPeripheralManager()
     var peripherals = [CBPeripheral]()
     var activePeripheral: CBPeripheral?
     var characteristics = [String: CBCharacteristic]()
-        
+    
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var name: UILabel!
@@ -42,22 +42,21 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
-    let annotation1 = MKPointAnnotation()
-    let annotation2 = MKPointAnnotation()
-    let annotation3 = MKPointAnnotation()
-    let annotation4 = MKPointAnnotation()
-    let annotation5 = MKPointAnnotation()
-    let annotation6 = MKPointAnnotation()
-    let annotation7 = MKPointAnnotation()
+    let annotation1 = CustomPointAnnotation()
+    let annotation2 = CustomPointAnnotation()
+    let annotation3 = CustomPointAnnotation()
+    let annotation4 = CustomPointAnnotation()
+    let annotation5 = CustomPointAnnotation()
+    let annotation6 = CustomPointAnnotation()
+    let annotation7 = CustomPointAnnotation()
     var anView = MKAnnotationView();
     
-    
+
     var receivedName = "";
     let SCAN_TIMEOUT = 1.0
     var hit = false;
     var endTime = 0.0
     var pressType = "";
-    
     
     var customHash = ""
     var nearbyDevices = Set<String>();
@@ -68,7 +67,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         scheduledTimerWithTimeInterval()
         
         ref = Database.database().reference()
-
+        
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
@@ -89,22 +88,50 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
             annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
-            annotation1.title = "James"
+            annotation1.imageName = "pin"
             annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+            annotation2.imageName = "pin"
+
             annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+            annotation3.imageName = "pin"
+
             annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+            annotation4.imageName = "pin"
+
             annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+            annotation5.imageName = "pin"
+
             annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
+            annotation6.imageName = "pin"
+
             annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+            annotation7.imageName = "pin"
+
             self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
         }
-        
-        
         
         let player = self.ref.child("Players").child(customHash)
         player.child("Name").setValue(name.text!)
         player.child("Team").setValue("Attacker")
         player.child("Status").setValue("Alive")
+        
+        let playerStatusListener = self.ref.child("Players").child(customHash).child("Status")
+        playerStatusListener.observe(DataEventType.value) { (snapshot) in
+            let status = snapshot.value as? String;
+            if status == "Alive" {
+                self.playerStatus.text = "Alive"
+            } else if status == "Dead" {
+                self.playerStatus.text = "Dead"
+            }
+        }
+        
+        let playerLocationListener = self.ref.child("Players")
+        playerLocationListener.observe(DataEventType.value){ (snapshot) in
+            let players = snapshot.value as? [String : [String : Any]]
+            for player in players!{
+                let location = player.value["Location"]!
+            }
+        }
         
         playerLatitude = player.child("Location").child("Longitude")
         playerLongitude = player.child("Location").child("Latitiude")
@@ -178,11 +205,18 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         } else {
             anView?.annotation = annotation
         }
-        anView!.image = UIImage(named: "pin")
+        let cpa = annotation as! CustomPointAnnotation
+        anView?.image = UIImage(named:cpa.imageName)
         anView?.frame.size = CGSize(width: 30, height: 30);
         anView?.backgroundColor = UIColor.clear
         anView?.canShowCallout = false
         return anView
+        
+//        anView!.image = UIImage(named: "pin")
+//        anView?.frame.size = CGSize(width: 30, height: 30);
+//        anView?.backgroundColor = UIColor.clear
+//        anView?.canShowCallout = false
+//        return anView
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -200,7 +234,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         //add center to db
         self.playerLatitude.setValue(location.coordinate.latitude)
         self.playerLongitude.setValue(location.coordinate.longitude)
-    
+        
         self.mapView.showsUserLocation = true;
         
     }
@@ -211,16 +245,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     }
     
     @IBAction func fireButton(_ sender: UIButton) {
-
         if ammo > 0 {
             pressType = "fire"
             ammo -= 1;
             ammoLeft.text = String(ammo);
             startScanning(timeout: SCAN_TIMEOUT)
         } else {
-            let alertController = UIAlertController(title: "You are out of ammo!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
         }
     }
     
@@ -235,7 +266,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     func startScanning(timeout: Double) -> Bool {
         if centralManager?.state != .poweredOn {
-            
             print("[ERROR] Couldn´t start scanning")
             return false
         }
@@ -258,62 +288,84 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     func postScanProtocol() {
         
-        //delete this shit later
-        nearbyDevices.insert("1BZ7zBt9")
-        
+        // Check for nearby devices
         if nearbyDevices.count > 0 {
-            let playersRef = self.ref.child("Players")
             
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
-                for hash in nearbyDevices {
-                    let foundRef = playersRef.child(hash)
-                    
-                    foundRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                        // Get user value
-                        let value = snapshot.value as? NSDictionary
-                        let name = value?["Name"] as? String ?? ""
-                        let team = value?["Team"] as? String ?? ""
-                        let status = value?["Status"] as? String ?? ""
-                        
-                        if team == "Defender" {
-                            if status == "Alive" {
-                                inRangeNames[name] = hash
-                            }
-                        }
-                        
-                    }) { (error) in
-                        print(error.localizedDescription)
-                    }
-                }
                 
-                if inRangeNames.count > 0 {
-                    self.generateSelectionPopup(title: "Enemies in Range", message: "Select an enemy to shoot", names: Array(inRangeNames.keys))
-                } else {
-                    print("You missed!")
-                }
+                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                    
+                    for player in players {
+                        let team = player[1]
+                        let status = player[2]
+                        let name = player[0]
+                        let hash = player[3]
+                        
+                        if team == "Defender" && status == "Alive" {
+                            //TODO: check if person is being aimed at
+                            inRangeNames[name] = hash
+                        }
+                    }
+                    
+                    if inRangeNames.count > 0 {
+                        self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
+                    } else {
+                        self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                    }
+                })
                 
             }
-            else if pressType == "revive" {}
+            else if pressType == "revive" {
+                var inRangeNames = [String : String]()
+                
+                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                    
+                    for player in players {
+                        let team = player[1]
+                        let status = player[2]
+                        let name = player[0]
+                        let hash = player[3]
+                        
+                        if team == "Attacker" && status == "Dead" {
+                            inRangeNames[name] = hash
+                        }
+                    }
+                    
+                    if inRangeNames.count > 0 {
+                        self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                    } else {
+                        self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                    }
+                })
+            }
             else if pressType == "capture" {}
         } else {
-            if pressType == "fire" {}
-            else if pressType == "revive" {}
+            if pressType == "fire" {
+                self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+            }
+            else if pressType == "revive" {
+                self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+            }
             else if pressType == "capture" {}
         }
         
         nearbyDevices.removeAll()
     }
     
-    func  generateSelectionPopup(title: String, message: String, names: [String]) {
+    func  generateKillPopup(title: String, message: String, names: [String:String]) {
         // Prepare the popup assets
         
         // Create the dialog
         let popup = PopupDialog(title: title, message: message, image: nil)
         
         var buttons = [PopupDialogButton]()
-        for name in names {
-            let button = DefaultButton(title: name, action: nil)
+        for name in names.keys {
+            
+            let button = DefaultButton(title: name) {
+                let hash = names[name]
+                self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+            }
             buttons.append(button)
         }
         
@@ -321,6 +373,56 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         // Present dialog
         self.present(popup, animated: true, completion: nil)
+    }
+    
+    func  generateRevivePopup(title: String, message: String, names: [String:String]) {
+        // Prepare the popup assets
+        
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message, image: nil)
+        
+        var buttons = [PopupDialogButton]()
+        for name in names.keys {
+            
+            let button = DefaultButton(title: name) {
+                let hash = names[name]
+                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
+            }
+            buttons.append(button)
+        }
+        
+        popup.addButtons(buttons)
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
+    }
+    
+    func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
+        
+        let dbReference = self.ref.child("Players")
+        // READ VALUE FROM DATABASE
+        
+        dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            var players = [[String]]()
+            
+            let values = snapshot.value as? [String:[String:Any]]
+            //            print(hashList)
+            for hash in hashList {
+                
+                let player = values![hash]
+                
+                let name = player!["Name"] as! String
+                let team = player!["Team"] as! String
+                let status = player!["Status"] as! String
+                
+                players.append([name, team, status, hash])
+            }
+            
+            callback(players)
+        })
+        
+        
     }
 }
 
@@ -347,17 +449,23 @@ extension AttackerViewController : CBCentralManagerDelegate {
             
         }
     }
-
+    
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
         peripherals.append(peripheral)
-
+        
         if advertisementData["kCBAdvDataLocalName"] != nil {
             nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
         }
         
-
+        
+    }
+ 
+    class CustomPointAnnotation: MKPointAnnotation {
+        var imageName: String!
     }
     
 }
+
+
 
