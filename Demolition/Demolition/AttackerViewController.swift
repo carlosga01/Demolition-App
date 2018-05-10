@@ -52,12 +52,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     
     var receivedName = "";
     let SCAN_TIMEOUT = 1.0
+    let SCAN_TIMEOUT_CAPTURE = 5.0
     var hit = false;
     var endTime = 0.0
     var pressType = "";
     
     var customHash = ""
     var nearbyDevices = Set<String>();
+    var nearbyHills = Set<String>();
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,8 +113,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         
-        playerLatitude = player.child("Location").child("Longitude")
-        playerLongitude = player.child("Location").child("Latitiude")
+        playerLatitude = player.child("Location").child("Latitude")
+        playerLongitude = player.child("Location").child("Longitude")
         
         // listen to endTime value from database
         self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
@@ -191,6 +193,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         startScanning(timeout: SCAN_TIMEOUT)
     }
     
+    @IBAction func captureButton(_ sender: UIButton) {
+        pressType = "capture"
+        startScanning(timeout: SCAN_TIMEOUT_CAPTURE)
+    }
     @IBAction func fireButton(_ sender: UIButton) {
         if ammo > 0 {
             pressType = "fire"
@@ -205,7 +211,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     func initService() {
         let serialService = CBMutableService(type: Constants.SERVICE_UUID, primary: true)
         let rx = CBMutableCharacteristic(type: Constants.RX_UUID, properties: Constants.RX_PROPERTIES, value: nil, permissions: Constants.RX_PERMISSIONS)
-        
+
         serialService.characteristics = [rx]
         peripheralManager.add(serialService)
     }
@@ -221,7 +227,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         
         Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(AttackerViewController.scanTimeout), userInfo: nil, repeats: false)
         
-        self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+        self.centralManager?.scanForPeripherals(withServices: [CBUUID(string: "FEAA"), Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
         
         return true
     }
@@ -234,6 +240,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func postScanProtocol() {
+        
+        if pressType == "capture" {
+            if nearbyHills.count > 0 {
+                self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: nearbyHills)
+            } else {
+                self.generateCapturePopup(title: "No hills in range to capture!", message: "Go get 'em ", hills: Set<String>())
+            }
+        }
         
         // Check for nearby devices
         if nearbyDevices.count > 0 {
@@ -286,7 +300,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
                     }
                 })
             }
-            else if pressType == "capture" {}
         } else {
             if pressType == "fire" {
                 self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
@@ -294,7 +307,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             else if pressType == "revive" {
                 self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
             }
-            else if pressType == "capture" {}
         }
         
         nearbyDevices.removeAll()
@@ -344,6 +356,27 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
         self.present(popup, animated: true, completion: nil)
     }
     
+    func  generateCapturePopup(title: String, message: String, hills: Set<String>) {
+        // Prepare the popup assets
+        
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message, image: nil)
+        
+        var buttons = [PopupDialogButton]()
+        for hill in hills {
+            
+            let button = DefaultButton(title: hill) {
+                //self.ref.child("Parties").child(partyID).child("Anthills").child(hill).setValue("captured")
+            }
+            buttons.append(button)
+        }
+        
+        popup.addButtons(buttons)
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
+    }
+    
     func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
         let dbReference = self.ref.child("Players")
@@ -356,9 +389,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate {
             let values = snapshot.value as? [String:[String:Any]]
             //            print(hashList)
             for hash in hashList {
-                
                 let player = values![hash]
-                
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
@@ -401,8 +432,16 @@ extension AttackerViewController : CBCentralManagerDelegate {
         
         peripherals.append(peripheral)
         
+//        print(peripheral.name)
+//        print(advertisementData[""])
+        
         if advertisementData["kCBAdvDataLocalName"] != nil {
-            nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            let name = peripheral.name as! String
+            if name == "anthill" || name == "anthill2" {
+                nearbyHills.insert(name)
+            } else if name.count == 8 {
+                nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            }
         }
         
         

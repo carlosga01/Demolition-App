@@ -285,7 +285,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
                     }
                 })
             }
-            else if pressType == "capture" {}
         } else {
             if pressType == "fire" {
                 self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
@@ -293,7 +292,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             else if pressType == "revive" {
                 self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
             }
-            else if pressType == "capture" {}
         }
         
         nearbyDevices.removeAll()
@@ -399,6 +397,8 @@ extension DefenderViewController : CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
         peripherals.append(peripheral)
+        
+        print(peripherals)
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
             nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
