@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Firebase
+import FirebaseDatabase
 
 class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var nextViewIdentifier: String? = "View1"
@@ -19,8 +21,10 @@ class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var attackersTable: UITableView!
     @IBOutlet weak var defendersTable: UITableView!
     
-    var attackers: [String] = ["carlos", "omar", "james"]
-    var defenders: [String] = ["carlos", "omar", "james"]
+    var attackers: [String] = ["Attackers"]
+    var defenders: [String] = ["Defenders"]
+    
+    var ref: DatabaseReference!
     
     //self.presentViewController(controller, animated: true, completion: nil)
     
@@ -39,12 +43,45 @@ class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDa
         super.viewDidLoad()
         attackersTable.delegate = self
         attackersTable.dataSource = self
+        attackersTable.register(UITableViewCell.self, forCellReuseIdentifier: "attackerCell")
+        
+        defendersTable.delegate = self
+        defendersTable.dataSource = self
+        defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
+        
         partyLabel.text = partyID
         nameLabel.text = playerName
+        
+        ref = Database.database().reference()
+        let teams = self.ref.child("Parties").child(partyID).child("Teams")
+        teams.child(playerName).setValue("Attacker")
+        teams.observe(DataEventType.value) { (snapshot) in
+            let value = snapshot.value as! NSDictionary
+            self.attackers.removeAll()
+            self.defenders.removeAll()
+            for name in value.allKeys {
+                let team = value[name] as! String
+                
+                if team == "Attacker" {
+                    self.attackers.append(name as! String)
+                } else if team == "Defender" {
+                    self.defenders.append(name as! String)
+                }
+                
+            }
+            self.attackersTable.reloadData()
+            self.defendersTable.reloadData()
+        }
+        
+        let globalVars = self.ref.child("Parties").child(partyID).child("Global")
+        
+        globalVars.child("gameState").setValue("inLobby")
+        //TODO add timer stuff here
     }
     
     @IBAction func startButton(_ sender: UIButton) {
         print("Game Started")
+        
         if (nextViewIdentifier == "View1") {
             let nextView = self.storyboard!.instantiateViewController(withIdentifier: nextViewIdentifier!) as! AttackerViewController
             nextView.receivedName =  nameLabel.text!
@@ -55,14 +92,22 @@ class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDa
             nextView.receivedName =  nameLabel.text!
             self.show(nextView, sender: self)
         }
+        
+        self.ref.child("Parties").child(partyID).child("Global").child("gameState").setValue("inProgress")
     }
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
             nextViewIdentifier = "View1"
+            
+            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Attacker")
+            
         case 1:
             nextViewIdentifier = "View2"
+            
+            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Defender")
+            
         default:
             nextViewIdentifier = nil;
         }
@@ -88,14 +133,34 @@ class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(self.attackers.count)
-        return self.attackers.count
+        var count: Int?
+        print("ok")
+        if tableView == self.attackersTable {
+            print("hey there")
+            count = attackers.count
+        }
+        
+        if tableView == self.defendersTable {
+            count = defenders.count
+        }
+        return count!
     }
    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print(indexPath.item)
-        let cell = tableView.dequeueReusableCell(withIdentifier: "attackerCell", for: indexPath as IndexPath)
-        cell.textLabel?.text = self.attackers[indexPath.item]
-        return cell
+        
+        var cell: UITableViewCell?
+        print("poopity scoop")
+        if tableView == self.attackersTable {
+            cell = tableView.dequeueReusableCell(withIdentifier: "attackerCell", for: indexPath as IndexPath)
+            cell?.textLabel?.text = self.attackers[indexPath.item]
+        }
+        
+        if tableView == self.defendersTable {
+            cell = tableView.dequeueReusableCell(withIdentifier: "defenderCell", for: indexPath as IndexPath)
+            cell?.textLabel?.text = self.defenders[indexPath.item]
+        }
+        
+        return cell!
+        
     }
 }
