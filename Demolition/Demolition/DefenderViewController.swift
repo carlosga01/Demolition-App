@@ -55,7 +55,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     var hit = false;
     var endTime = 0.0
     var pressType = "";
-
     var customHash = ""
     var nearbyDevices = Set<String>();
     
@@ -86,6 +85,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
             annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+            annotation1.title = "James"
             annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
             annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
             annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
@@ -171,8 +171,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         let location = locations.last! as CLLocation
         
         let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005))
-        
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
+
         if !firstCheck{
             self.mapView.setRegion(region, animated: true)
             firstCheck = true;
