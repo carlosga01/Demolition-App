@@ -9,10 +9,18 @@
 import Foundation
 import UIKit
 
-class SigninViewController: UIViewController {
+class SigninViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var nextViewIdentifier: String? = "View1"
     var newLine: String = "EUR"
+    var playerName: String = ""
+    var partyID: String = ""
+    var customHash: String = ""
     
+    @IBOutlet weak var attackersTable: UITableView!
+    @IBOutlet weak var defendersTable: UITableView!
+    
+    var attackers: [String] = ["carlos", "omar", "james"]
+    var defenders: [String] = ["carlos", "omar", "james"]
     
     //self.presentViewController(controller, animated: true, completion: nil)
     
@@ -22,26 +30,32 @@ class SigninViewController: UIViewController {
     }
     
 
-    
-    @IBOutlet weak var nameField: UITextField!
-    
+    @IBOutlet weak var partyLabel: UILabel!
+    @IBOutlet weak var nameLabel: UILabel!
+        
     @IBOutlet weak var teamSelector: UISegmentedControl!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        attackersTable.delegate = self
+        attackersTable.dataSource = self
+        partyLabel.text = partyID
+        nameLabel.text = playerName
+    }
     
     @IBAction func startButton(_ sender: UIButton) {
         print("Game Started")
         if (nextViewIdentifier == "View1") {
             let nextView = self.storyboard!.instantiateViewController(withIdentifier: nextViewIdentifier!) as! AttackerViewController
-            nextView.receivedName =  nameField.text!
+            nextView.receivedName =  nameLabel.text!
+            nextView.receivedCustomHash = customHash
             self.show(nextView, sender: self)
-        }else{
+        } else {
             let nextView = self.storyboard!.instantiateViewController(withIdentifier: nextViewIdentifier!) as! DefenderViewController
-            nextView.receivedName =  nameField.text!
+            nextView.receivedName =  nameLabel.text!
             self.show(nextView, sender: self)
         }
-
-        
     }
-    
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
@@ -52,7 +66,6 @@ class SigninViewController: UIViewController {
         default:
             nextViewIdentifier = nil;
         }
-    
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -74,7 +87,15 @@ class SigninViewController: UIViewController {
 
     }
     
-    
-    
-    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(self.attackers.count)
+        return self.attackers.count
+    }
+   
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print(indexPath.item)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "attackerCell", for: indexPath as IndexPath)
+        cell.textLabel?.text = self.attackers[indexPath.item]
+        return cell
+    }
 }

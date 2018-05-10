@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "26561215B5B4FA209446CA643CE9DB25"
-               BuildableName = "Pods_Demolition.framework"
-               BlueprintName = "Pods-Demolition"
+               BlueprintIdentifier = "3B08C49A396BAA0D9DCAD4460CC52F95"
+               BuildableName = "leveldb.framework"
+               BlueprintName = "leveldb-library"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,9 +47,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "26561215B5B4FA209446CA643CE9DB25"
-            BuildableName = "Pods_Demolition.framework"
-            BlueprintName = "Pods-Demolition"
+            BlueprintIdentifier = "3B08C49A396BAA0D9DCAD4460CC52F95"
+            BuildableName = "leveldb.framework"
+            BlueprintName = "leveldb-library"
             ReferencedContainer = "container:Pods.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
