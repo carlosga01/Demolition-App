@@ -139,7 +139,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         //create Location folder in DB for player
         playerLongitude = player.child("Location").child("Longitude")
         playerLongitude.setValue(0)
-        playerLatitude = player.child("Location").child("Latitiude")
+        playerLatitude = player.child("Location").child("Latitude")
         playerLatitude.setValue(0)
 
         // listen to endTime value from database
@@ -181,7 +181,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     func scheduledTimer(){
         //scheduled timer for locations
-        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.locations), userInfo: nil, repeats: true)
+        timer1 = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.locations), userInfo: nil, repeats: true)
         
     }
     
@@ -464,7 +464,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             var players = [[Double]]()
             let values = snapshot.value as? [String:[String:Any]]
             for value in values!{
-                if value.key == self.customHash{
+                if value.key == self.receivedCustomHash{
                     continue
                 }
                 let location = value.value["Location"]! as! Dictionary<String,AnyObject>
@@ -478,7 +478,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 }
 
             }
-            //print(players)
+            print(players)
             callback(players)
         })
     
