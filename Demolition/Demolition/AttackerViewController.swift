@@ -39,6 +39,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var ammo = 5;
     var currentTime = 1000;
     var timer = Timer();
+    var timer1 = Timer()
     var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
@@ -49,6 +50,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     let annotation5 = CustomPointAnnotation()
     let annotation6 = CustomPointAnnotation()
     let annotation7 = CustomPointAnnotation()
+    var annotations = [CustomPointAnnotation()]
     var anView = MKAnnotationView();
     
 
@@ -64,8 +66,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     override func viewDidLoad() {
         super.viewDidLoad()
         self.mapView.delegate = self
+        //self.locations()
         scheduledTimerWithTimeInterval()
-        
+        scheduledTimer()
         ref = Database.database().reference()
         
         // Do any additional setup after loading the view, typically from a nib.
@@ -125,16 +128,26 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             }
         }
         
-        let playerLocationListener = self.ref.child("Players")
-        playerLocationListener.observe(DataEventType.value){ (snapshot) in
-            let players = snapshot.value as? [String : [String : Any]]
-            for player in players!{
-                let location = player.value["Location"]!
-            }
-        }
+//        let dbReference = self.ref.child("Players")
+//        playerLocationListener.observe(DataEventType.value){ (snapshot) in
+//            let players = snapshot.value as? [String : [String : Any]]
+//            for player in players!{
+//                let location = player.value["Location"]! as! Dictionary<String,AnyObject>
+//                print(type(of: location))
+//                if location["Latitude"] != nil{
+//                    let lat = location["Latitude"]!
+//                    let lon = location["Longitude"]!
+//                    let annotation = CustomPointAnnotation()
+//                    annotation.imageName = "self"
+//                    annotation.coordinate = CLLocationCoordinate2D(latitude: lat as! CLLocationDegrees, longitude: lon as! CLLocationDegrees )
+//                    print(location)
+//                    self.mapView.addAnnotation(annotation)
+//                }
+//            }
+//        }
         
-        playerLatitude = player.child("Location").child("Longitude")
-        playerLongitude = player.child("Location").child("Latitiude")
+        playerLatitude = player.child("Location").child("Latitude")
+        playerLongitude = player.child("Location").child("Longitude")
         
         // listen to endTime value from database
         self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
@@ -173,6 +186,28 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounting), userInfo: nil, repeats: true)
     }
     
+    func scheduledTimer(){
+        //scheduled timer for locations
+        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.locations), userInfo: nil, repeats: true)
+        
+    }
+    
+    @objc func locations(){
+        self.mapView.removeAnnotations(annotations)
+        
+        getLocations(callback: { (players) -> Void in
+            print(players)//
+            for location in players{
+                let annotation = CustomPointAnnotation()
+                annotation.imageName = "self"
+                annotation.coordinate = CLLocationCoordinate2D(latitude: location[0], longitude: location[1])
+                self.annotations.append(annotation)
+                self.mapView.addAnnotation(annotation)
+            }
+
+        })
+    }
+    
     @objc func updateCounting(){
         let currentTimestamp = NSDate().timeIntervalSince1970
         let gameTimeRemaining = self.endTime - currentTimestamp
@@ -194,10 +229,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             return nil
         }
         
-        if annotation.title! != nil{
-            print (annotation.title!!)
-        }
-        
         let annotationReuseId = "Place"
         var anView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationReuseId)
         if anView == nil {
@@ -212,11 +243,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         anView?.canShowCallout = false
         return anView
         
-//        anView!.image = UIImage(named: "pin")
-//        anView?.frame.size = CGSize(width: 30, height: 30);
-//        anView?.backgroundColor = UIColor.clear
-//        anView?.canShowCallout = false
-//        return anView
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -395,6 +421,33 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         // Present dialog
         self.present(popup, animated: true, completion: nil)
+    }
+    
+    func getLocations(callback: @escaping (_ players: [[Double]])->Void){
+        let dbReference = self.ref.child("Players")
+        // READ VALUE FROM DATABASE
+        dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
+            var players = [[Double]]()
+            let values = snapshot.value as? [String:[String:Any]]
+            for value in values!{
+                if value.key == self.customHash{
+                    continue
+                }
+                let location = value.value["Location"]! as! Dictionary<String,AnyObject>
+                //print("location", location)
+                if location["Latitude"] != nil{
+                    let lat = location["Latitude"]!
+                    let lon = location["Longitude"]!
+                    print("lat", lat)
+                    print("lon", lon)
+                    players.append([lat as! Double , lon as! Double])
+                }
+
+            }
+            //print(players)
+            callback(players)
+        })
+    
     }
     
     func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
