@@ -50,9 +50,11 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     let annotation6 = MKPointAnnotation()
     let annotation7 = MKPointAnnotation()
     
-    var receivedName = "";
+    var receivedName = ""
+    var receivedPartyID = ""
+    var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
-    var hit = false;
+    var scanning = false;
     var endTime = 0.0
     var pressType = "";
     var customHash = ""
@@ -60,9 +62,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         scheduledTimerWithTimeInterval()
-        
         ref = Database.database().reference()
         
         // Do any additional setup after loading the view, typically from a nib.
@@ -96,12 +96,16 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
         }
         
-        let player = self.ref.child("Players").child(customHash)
-        player.child("Name").setValue(name.text!)
+        //set the values in the hash section of the DB
+        let party = self.ref.child("Parties").child(receivedPartyID)
+        let player = party.child("Players").child(receivedCustomHash)
+        player.child("Name").setValue(receivedName)
         player.child("Team").setValue("Defender")
         player.child("Status").setValue("Alive")
         
-        let playerStatusListener = self.ref.child("Players").child(customHash).child("Status")
+        
+        //listen to see if player dies
+        let playerStatusListener = player.child("Status")
         playerStatusListener.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String;
             if status == "Alive" {
@@ -111,11 +115,12 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         
-        playerLatitude = player.child("Location").child("Longitude")
-        playerLongitude = player.child("Location").child("Latitiude")
+        //create Location folder in DB for player
+        player.child("Location").child("Longitude").setValue(0)
+        player.child("Location").child("Latitiude").setValue(0)
         
         // listen to endTime value from database
-        self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+        party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
             let value = snapshot.value as! TimeInterval
             self.endTime = value
         }) { (error) in
@@ -160,6 +165,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         
         if gameTimeRemaining < 0 {
+            //TODO: make the game actually stop when its over
             let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
@@ -194,9 +200,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             ammoLeft.text = String(ammo);
             startScanning(timeout: SCAN_TIMEOUT)
         } else {
-            let alertController = UIAlertController(title: "You are out of ammo!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
         }
     }
     
@@ -215,16 +219,22 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             return false
         }
         
-        print("[DEBUG] Scanning started")
-        
-        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(DefenderViewController.scanTimeout), userInfo: nil, repeats: false)
-        
-        self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
-        
-        return true
+        if scanning == false {
+            scanning == true;
+            print("[DEBUG] Scanning started")
+            
+            Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(DefenderViewController.scanTimeout), userInfo: nil, repeats: false)
+            
+            self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+            
+            return true
+        } else {
+            return false
+        }
     }
     
     @objc private func scanTimeout() {
+        scanning = false;
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         
@@ -285,7 +295,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
                     }
                 })
             }
-            else if pressType == "capture" {}
         } else {
             if pressType == "fire" {
                 self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
@@ -293,7 +302,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             else if pressType == "revive" {
                 self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
             }
-            else if pressType == "capture" {}
         }
         
         nearbyDevices.removeAll()
@@ -310,7 +318,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
             }
             buttons.append(button)
         }
@@ -332,7 +340,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
             }
             buttons.append(button)
         }
@@ -345,19 +353,17 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
-        let dbReference = self.ref.child("Players")
-        // READ VALUE FROM DATABASE
+        let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         
+        // READ VALUE FROM DATABASE
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
             var players = [[String]]()
             
             let values = snapshot.value as? [String:[String:Any]]
-//            print(hashList)
+            print(hashList)
             for hash in hashList {
-                
                 let player = values![hash]
-                
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
@@ -401,12 +407,12 @@ extension DefenderViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
-            nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            let name = peripheral.name as! String
+            if name.count == 8 {
+                nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            }
         }
-        
-        
     }
-    
     
 }
 
