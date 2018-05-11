@@ -15,7 +15,9 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var playerName: String = ""
     var partyID: String = ""
     var customHash: String = ""
-    var lightGreenColor = UIColor(red: CGFloat(147.0/255.0), green: CGFloat(175.0/255.0), blue: CGFloat(147.0/255.0), alpha: CGFloat(1.0))
+    
+    var lightBrownColor = UIColor(red: CGFloat(191.0/255.0), green: CGFloat(176.0/255.0), blue: CGFloat(131.0/255.0), alpha: CGFloat(1.0))
+    var darkBrownColor = UIColor(red: CGFloat(48.0/255.0), green: CGFloat(39.0/255.0), blue: CGFloat(39.0/255.0), alpha: CGFloat(1.0))
     
     @IBOutlet weak var attackersTable: UITableView!
     @IBOutlet weak var defendersTable: UITableView!
@@ -34,13 +36,30 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let selectedTextAttributes: [NSAttributedStringKey: Any] = [
+            .font : UIFont(name: "Futura", size: 17.0)!,
+            .foregroundColor : UIColor.white
+        ]
+        let normalTextAttributes: [NSAttributedStringKey: Any] = [
+            .font : UIFont(name: "Futura", size: 17.0)!,
+            .foregroundColor : darkBrownColor
+        ]
+        teamSelector.setTitleTextAttributes(normalTextAttributes, for: UIControlState.normal)
+        teamSelector.setTitleTextAttributes(selectedTextAttributes, for: UIControlState.selected)
+        teamSelector.superview?.clipsToBounds = true
+        teamSelector.superview?.layer.cornerRadius = 0.0
+        teamSelector.superview?.layer.borderWidth = 1.0
+        teamSelector.superview?.layer.borderColor = darkBrownColor.cgColor
 
-        attackersTable.backgroundColor = lightGreenColor
+        attackersTable.backgroundColor = lightBrownColor
+        attackersTable.rowHeight = 30.0
         attackersTable.delegate = self
         attackersTable.dataSource = self
         attackersTable.register(UITableViewCell.self, forCellReuseIdentifier: "attackerCell")
         
-        defendersTable.backgroundColor = lightGreenColor
+        defendersTable.backgroundColor = lightBrownColor
+        defendersTable.rowHeight = 30.0
         defendersTable.delegate = self
         defendersTable.dataSource = self
         defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
@@ -141,6 +160,8 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         
         cell?.backgroundColor = UIColor.clear
         cell?.textLabel?.font = UIFont(name: "Futura", size: CGFloat(17.0))
+        cell?.textLabel?.textColor = darkBrownColor
+        cell?.textLabel?.textAlignment = NSTextAlignment.center
         
         return cell!
     }
