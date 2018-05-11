@@ -12,11 +12,10 @@ import Firebase
 import FirebaseDatabase
 
 class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    var nextViewIdentifier: String? = "View1"
-    var newLine: String = "EUR"
     var playerName: String = ""
     var partyID: String = ""
     var customHash: String = ""
+    var lightGreenColor = UIColor(red: CGFloat(147.0/255.0), green: CGFloat(175.0/255.0), blue: CGFloat(147.0/255.0), alpha: CGFloat(1.0))
     
     @IBOutlet weak var attackersTable: UITableView!
     @IBOutlet weak var defendersTable: UITableView!
@@ -35,10 +34,13 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        attackersTable.backgroundColor = lightGreenColor
         attackersTable.delegate = self
         attackersTable.dataSource = self
         attackersTable.register(UITableViewCell.self, forCellReuseIdentifier: "attackerCell")
         
+        defendersTable.backgroundColor = lightGreenColor
         defendersTable.delegate = self
         defendersTable.dataSource = self
         defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
@@ -136,6 +138,9 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
             cell = tableView.dequeueReusableCell(withIdentifier: "defenderCell", for: indexPath as IndexPath)
             cell?.textLabel?.text = self.defenders[indexPath.item]
         }
+        
+        cell?.backgroundColor = UIColor.clear
+        cell?.textLabel?.font = UIFont(name: "Futura", size: CGFloat(17.0))
         
         return cell!
     }

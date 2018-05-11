@@ -117,7 +117,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         
         //create Location folder in DB for player
         player.child("Location").child("Longitude").setValue(0)
-        player.child("Location").child("Latitiude").setValue(0)
+        player.child("Location").child("Latitude").setValue(0)
         
         // listen to endTime value from database
         party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
