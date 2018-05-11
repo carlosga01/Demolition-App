@@ -200,9 +200,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             ammoLeft.text = String(ammo);
             startScanning(timeout: SCAN_TIMEOUT)
         } else {
-            let alertController = UIAlertController(title: "You are out of ammo!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
         }
     }
     
@@ -363,11 +361,9 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             var players = [[String]]()
             
             let values = snapshot.value as? [String:[String:Any]]
-            
+            print(hashList)
             for hash in hashList {
-                
                 let player = values![hash]
-                
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
@@ -411,7 +407,10 @@ extension DefenderViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
-            nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            let name = peripheral.name as! String
+            if name.count == 8 {
+                nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+            }
         }
     }
     
