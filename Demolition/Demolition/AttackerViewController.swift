@@ -549,8 +549,6 @@ extension AttackerViewController : CBCentralManagerDelegate {
                 nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
             }
         }
-        
-        
     }
  
     class CustomPointAnnotation: MKPointAnnotation {

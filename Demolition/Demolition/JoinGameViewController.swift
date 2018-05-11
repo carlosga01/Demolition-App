@@ -25,23 +25,32 @@ class JoinGameViewController: UIViewController {
         ref = Database.database().reference()
     }
     
-    
     @IBOutlet weak var partyIDInput: UITextField!
     
     @IBAction func joinGameButton(_ sender: UIButton) {
-
+        
         if self.partyIDInput.text != "" {
             // check if party id exists in DB
             let allPartiesRef = self.ref.child("Parties")
+            
             allPartiesRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 if snapshot.hasChild(self.partyIDInput.text!) {
-                    // send name to party entry in DB
+                    let value = snapshot.value as? [String:[String:Any]]
                     let partyRef = self.ref.child("Parties").child(self.partyIDInput.text!)
-                    let playerRef = partyRef.child("Players").child(self.customHash)
-                    playerRef.child("Name").setValue(self.playerName)
-                    playerRef.child("Team").setValue("Attacker")
-                    playerRef.child("Status").setValue("Alive")
-                    self.performSegue(withIdentifier: "conditionSegue", sender: nil)
+                    let partyIdAsDict = value![self.partyIDInput.text!]! as Dictionary<String, AnyObject>
+                    
+                    // check if party is in waiting lobby
+                    if partyIdAsDict["Global"]!["gameState"] as! String == "inLobby" {
+                        // send info to corresponding partyID in DB
+                        let playerRef = partyRef.child("Players").child(self.customHash)
+                        playerRef.child("Name").setValue(self.playerName)
+                        playerRef.child("Team").setValue("Attacker")
+                        playerRef.child("Status").setValue("Alive")
+                        self.performSegue(withIdentifier: "conditionSegue", sender: nil)
+                    } else {
+                        print("game is already in progress.")
+                    }
+                    
                 } else {
                     print("party does not exist")
                 }
