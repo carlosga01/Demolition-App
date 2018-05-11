@@ -172,7 +172,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="6A1-nz-0RS">
-                                <rect key="frame" x="0.0" y="219.66666666666663" width="375" height="36.999999999999972"/>
+                                <rect key="frame" x="0.0" y="219.66666666666666" width="375" height="37"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="Y1E-t1-L1g"/>
                                 </constraints>

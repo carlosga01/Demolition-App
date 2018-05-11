@@ -18,8 +18,8 @@ import PopupDialog
 class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     // DATABASE VARIABLES
     var ref: DatabaseReference!
-    var playerLatitude: DatabaseReference = DatabaseReference();
-    var playerLongitude: DatabaseReference = DatabaseReference();
+    var playerLatitude: DatabaseReference = DatabaseReference()
+    var playerLongitude: DatabaseReference = DatabaseReference()
     
     // BLUETOOTH VARIABLES
     var centralManager: CBCentralManager?
@@ -35,12 +35,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
     
-    
-    var ammo = 5;
-    var currentTime = 1000;
-    var timer = Timer();
-    var timer1 = Timer()
-    var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
     let annotation1 = CustomPointAnnotation()
@@ -51,36 +45,37 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     let annotation6 = CustomPointAnnotation()
     let annotation7 = CustomPointAnnotation()
     var annotations = [CustomPointAnnotation()]
-    var anView = MKAnnotationView();
+    var anView = MKAnnotationView()
     
+    var ammo = 5
+    var timer = Timer()
+    var firstCheck = false
     var receivedName = ""
     var receivedPartyID = ""
     var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
     let SCAN_TIMEOUT_CAPTURE = 5.0
-    var scanning = false;
+    var scanning = false
     var endTime = 0.0
-    var pressType = "";
+    var pressType = ""
     
-    var customHash = ""
-    var nearbyDevices = Set<String>();
-    var nearbyHills = Set<String>();
+    var nearbyDevices = Set<String>()
+    var nearbyHills = Set<String>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.mapView.delegate = self
-        //self.locations()
-        scheduledTimerWithTimeInterval()
-        scheduledTimer()
+
+        runGlobalCountdown()
+        scheduledLocationFetcher()
+        
         ref = Database.database().reference()
         
-        // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
-        name.text = receivedName;
-        ammoLeft.text = String(ammo);
         
-        customHash = generateRandomString();
+        name.text = receivedName
+        ammoLeft.text = String(ammo)
         
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -123,11 +118,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         player.child("Team").setValue("Attacker")
         player.child("Status").setValue("Alive")
         
-        
         //listen to see if player dies
         let playerStatusListener = player.child("Status")
         playerStatusListener.observe(DataEventType.value) { (snapshot) in
-            let status = snapshot.value as? String;
+            let status = snapshot.value as? String
             if status == "Alive" {
                 self.playerStatus.text = "Alive"
             } else if status == "Dead" {
@@ -135,11 +129,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             }
         }
         
-
         //create Location folder in DB for player
         playerLongitude = player.child("Location").child("Longitude")
         playerLongitude.setValue(0)
-        playerLatitude = player.child("Location").child("Latitiude")
+        playerLatitude = player.child("Location").child("Latitude")
         playerLatitude.setValue(0)
 
         // listen to endTime value from database
@@ -152,7 +145,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     }
     
     func generateRandomString() -> String {
-        
         let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let len = UInt32(letters.length)
         
@@ -174,34 +166,32 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     }
 
     
-    func scheduledTimerWithTimeInterval(){
-        // Scheduling timer to Call the function "updateCounting" with the interval of 1 seconds
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounting), userInfo: nil, repeats: true)
+    func runGlobalCountdown(){
+        // Scheduling timer to Call the function "updateGlobalCountdown" with the interval of 1 seconds
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateGlobalCountdown), userInfo: nil, repeats: true)
     }
     
-    func scheduledTimer(){
-        //scheduled timer for locations
-        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.locations), userInfo: nil, repeats: true)
+    func scheduledLocationFetcher(){
+        //scheduled timer to fetch for locations
+        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchLocationsFromDatabase), userInfo: nil, repeats: true)
         
     }
     
-    @objc func locations(){
+    @objc func fetchLocationsFromDatabase(){
         self.mapView.removeAnnotations(annotations)
-        
         getLocations(callback: { (players) -> Void in
-            print(players)//
-            for location in players{
+            print(players)
+            for location in players {
                 let annotation = CustomPointAnnotation()
                 annotation.imageName = "self"
                 annotation.coordinate = CLLocationCoordinate2D(latitude: location[0], longitude: location[1])
                 self.annotations.append(annotation)
                 self.mapView.addAnnotation(annotation)
             }
-
         })
     }
     
-    @objc func updateCounting(){
+    @objc func updateGlobalCountdown() {
         let currentTimestamp = NSDate().timeIntervalSince1970
         let gameTimeRemaining = self.endTime - currentTimestamp
         let interval = Int(gameTimeRemaining)
@@ -232,7 +222,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         let cpa = annotation as! CustomPointAnnotation
         anView?.image = UIImage(named:cpa.imageName)
-        anView?.frame.size = CGSize(width: 30, height: 30);
+        anView?.frame.size = CGSize(width: 30, height: 30)
         anView?.backgroundColor = UIColor.clear
         anView?.canShowCallout = false
         return anView
@@ -248,14 +238,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         if !firstCheck{
             self.mapView.setRegion(region, animated: true)
-            firstCheck = true;
+            firstCheck = true
         }
         
         //add center to db
         self.playerLatitude.setValue(location.coordinate.latitude)
         self.playerLongitude.setValue(location.coordinate.longitude)
         
-        self.mapView.showsUserLocation = true;
+        self.mapView.showsUserLocation = true
         
     }
     
@@ -271,8 +261,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @IBAction func fireButton(_ sender: UIButton) {
         if ammo > 0 {
             pressType = "fire"
-            ammo -= 1;
-            ammoLeft.text = String(ammo);
+            ammo -= 1
+            ammoLeft.text = String(ammo)
             startScanning(timeout: SCAN_TIMEOUT)
         } else {
             self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
@@ -295,7 +285,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         
         if self.scanning == false {
-            self.scanning = true;
+            self.scanning = true
             
             print("[DEBUG] Scanning started")
             
@@ -463,12 +453,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             var players = [[Double]]()
             let values = snapshot.value as? [String:[String:Any]]
+            print(values)
             for value in values!{
-                if value.key == self.customHash{
+                if value.key == self.receivedCustomHash {
                     continue
                 }
+                
                 let location = value.value["Location"]! as! Dictionary<String,AnyObject>
-                //print("location", location)
                 if location["Latitude"] != nil{
                     let lat = location["Latitude"]!
                     let lon = location["Longitude"]!
@@ -476,9 +467,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                     print("lon", lon)
                     players.append([lat as! Double , lon as! Double])
                 }
-
             }
-            //print(players)
+
             callback(players)
         })
     
@@ -490,9 +480,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         // READ VALUE FROM DATABASE
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
-            
             var players = [[String]]()
-            
             let values = snapshot.value as? [String:[String:Any]]
             
             for hash in hashList {
@@ -500,14 +488,11 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
-                
                 players.append([name, team, status, hash])
             }
             
             callback(players)
         })
-        
-        
     }
 }
 
@@ -520,7 +505,7 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
             
             initService()
             
-            let advertisementData = customHash;
+            let advertisementData = receivedCustomHash
             
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }
@@ -531,7 +516,6 @@ extension AttackerViewController : CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if (central.state == .poweredOn){
             print("[DEBUG] central state: on")
-            
         }
     }
     
@@ -542,7 +526,7 @@ extension AttackerViewController : CBCentralManagerDelegate {
         if advertisementData["kCBAdvDataLocalName"] != nil {
             let name = peripheral.name as! String
             
-            //TODO: accept all anthill names
+            // TODO: accept all anthill names
             if name == "anthill" || name == "anthill2" {
                 nearbyHills.insert(name)
             } else if name.count == 8 {
