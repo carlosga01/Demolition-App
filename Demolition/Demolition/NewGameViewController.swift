@@ -26,13 +26,28 @@ class NewGameViewController: UIViewController {
     @IBAction func createGameButton(_ sender: UIButton) {
         partyID = generatePartyID()
         customHash = generateRandomString()
-        
-        // send name and partyID to db
-        let partyRef = self.ref.child("Parties").child(partyID)
-        let playerRef = partyRef.child("Players").child(customHash)
-        playerRef.child("Name").setValue(playerName.text!)
-        playerRef.child("Team").setValue("Attacker")
-        playerRef.child("Status").setValue("Alive")
+    
+        if self.playerName.text != "" {
+            // send name and partyID to db
+            let partyRef = self.ref.child("Parties").child(partyID)
+            let playerRef = partyRef.child("Players").child(customHash)
+            playerRef.child("Name").setValue(playerName.text!)
+            playerRef.child("Team").setValue("Attacker")
+            playerRef.child("Status").setValue("Alive")
+            self.performSegue(withIdentifier: "hostLobbySegue", sender: nil)
+        } else {
+            print("player name is empty")
+        }
+    }
+    
+    @IBAction func joinGameButtonClick(_ sender: UIButton) {
+        customHash = generateRandomString()
+
+        if self.playerName.text != "" {
+            self.performSegue(withIdentifier: "joinGameSegue", sender: nil)
+        } else {
+            print("player name is empty")
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -40,7 +55,6 @@ class NewGameViewController: UIViewController {
     }
     
     func generatePartyID () -> String {
-        
         var result = ""
         repeat {
             // Create a string with a random number 0...9999
@@ -51,7 +65,6 @@ class NewGameViewController: UIViewController {
     }
     
     func generateRandomString() -> String {
-        
         let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let len = UInt32(letters.length)
         
@@ -67,15 +80,15 @@ class NewGameViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.destination is SigninViewController {
-            let vc = segue.destination as? SigninViewController
+        if segue.destination is HostLobbyViewController {
+            let vc = segue.destination as? HostLobbyViewController
             vc?.playerName = playerName.text!
             vc?.partyID = partyID
             vc?.customHash = customHash
-        } else {
+        } else if segue.destination is JoinGameViewController {
             let vc = segue.destination as? JoinGameViewController
             vc?.playerName = playerName.text!
-            vc?.customHash = generateRandomString()
+            vc?.customHash = customHash
         }
     }
 

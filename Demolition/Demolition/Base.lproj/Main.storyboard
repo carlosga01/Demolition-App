@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="E5F-Fj-Ted">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="E5F-Fj-Ted">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Futura.ttc">
+            <string>Futura-Bold</string>
+            <string>Futura-Medium</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--New Game View Controller-->
         <scene sceneID="xt1-US-lgb">
@@ -45,7 +51,6 @@
                                         <state key="normal" title="CREATE NEW GAME"/>
                                         <connections>
                                             <action selector="createGameButton:" destination="E5F-Fj-Ted" eventType="touchUpInside" id="IId-y2-yvw"/>
-                                            <segue destination="YtL-ce-v0c" kind="show" id="HPW-wl-LvS"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yCt-ki-LPD">
@@ -55,7 +60,7 @@
                                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <state key="normal" title="JOIN GAME"/>
                                         <connections>
-                                            <segue destination="Mpn-uG-4CI" kind="show" id="pdM-QC-xIc"/>
+                                            <action selector="joinGameButtonClick:" destination="E5F-Fj-Ted" eventType="touchUpInside" id="tIT-MU-ksX"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -81,6 +86,8 @@
                     </view>
                     <connections>
                         <outlet property="playerName" destination="4rx-io-QE9" id="POi-nq-jrQ"/>
+                        <segue destination="YtL-ce-v0c" kind="show" identifier="hostLobbySegue" id="L0s-aH-mBn"/>
+                        <segue destination="Mpn-uG-4CI" kind="show" identifier="joinGameSegue" id="bHY-Qd-YF8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vjM-Qh-mHl" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -276,16 +283,18 @@
                         <outlet property="nameLabel" destination="F9R-vq-0Ta" id="mw1-qe-6s3"/>
                         <outlet property="partyLabel" destination="WMu-wj-Dal" id="zte-n7-A1y"/>
                         <outlet property="teamSelector" destination="6A1-nz-0RS" id="uhW-G8-97r"/>
+                        <segue destination="VUK-X9-96r" kind="show" identifier="defenderSegue" id="Fms-De-bmf"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="attackerSegue" id="hHe-X3-lU0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6fn-OC-ji2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1476" y="631.0344827586207"/>
         </scene>
-        <!--Signin View Controller-->
+        <!--Host Lobby View Controller-->
         <scene sceneID="hYW-93-cCv">
             <objects>
-                <viewController id="YtL-ce-v0c" customClass="SigninViewController" customModule="Demolition" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="YtL-ce-v0c" customClass="HostLobbyViewController" customModule="Demolition" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="YmL-Zg-5WS"/>
                         <viewControllerLayoutGuide type="bottom" id="eHY-Wj-i3r"/>
@@ -446,11 +455,13 @@
                         <outlet property="nameLabel" destination="67l-yK-Bxb" id="8yQ-HN-TGc"/>
                         <outlet property="partyLabel" destination="84U-On-2mZ" id="sjA-a9-srb"/>
                         <outlet property="teamSelector" destination="fhe-eg-wZz" id="SCg-Qz-KRD"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="attackerSegue" id="0mP-ie-m36"/>
+                        <segue destination="VUK-X9-96r" kind="show" identifier="defenderSegue" id="ErX-Sw-XJK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2NM-RP-r70" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2484" y="-89.408866995073893"/>
+            <point key="canvasLocation" x="-2047" y="-63"/>
         </scene>
         <!--Attacker View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -730,4 +741,8 @@
             <point key="canvasLocation" x="118" y="529"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="ErX-Sw-XJK"/>
+        <segue reference="0mP-ie-m36"/>
+    </inferredMetricsTieBreakers>
 </document>

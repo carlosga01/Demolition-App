@@ -50,7 +50,9 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     let annotation6 = MKPointAnnotation()
     let annotation7 = MKPointAnnotation()
     
-    var receivedName = "";
+    var receivedName = ""
+    var receivedPartyID = ""
+    var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
     var hit = false;
     var endTime = 0.0
@@ -60,9 +62,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         scheduledTimerWithTimeInterval()
-        
         ref = Database.database().reference()
         
         // Do any additional setup after loading the view, typically from a nib.

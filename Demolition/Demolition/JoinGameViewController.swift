@@ -23,15 +23,13 @@ class JoinGameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         ref = Database.database().reference()
-        print(customHash)
-        print(playerName)
     }
     
     
     @IBOutlet weak var partyIDInput: UITextField!
     
     @IBAction func joinGameButton(_ sender: UIButton) {
-        
+
         if self.partyIDInput.text != "" {
             // check if party id exists in DB
             let allPartiesRef = self.ref.child("Parties")

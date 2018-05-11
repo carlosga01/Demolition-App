@@ -51,9 +51,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     let annotation7 = CustomPointAnnotation()
     var anView = MKAnnotationView();
     
-
-    var receivedName = "";
-    var receivedCustomHash = "";
+    var receivedName = ""
+    var receivedPartyID = ""
+    var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
     let SCAN_TIMEOUT_CAPTURE = 5.0
     var hit = false;
