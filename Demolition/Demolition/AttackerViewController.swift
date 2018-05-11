@@ -142,6 +142,42 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }) { (error) in
             print(error.localizedDescription)
         }
+        
+        //append flags to database
+        var flagLocations = [annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7]
+        var count = 1
+        for location in flagLocations{
+            let flag = party.child("Global").child("Flags").child("Flag" + String(count))
+            flag.child("Status").setValue("Free")
+            flag.child("Location").child("Longitude").setValue(location.coordinate.longitude)
+            flag.child("Location").child("Latitude").setValue(location.coordinate.latitude)
+            count += 1
+        }
+        
+        
+        var flagHash = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6, "Flag7": annotation7]
+        party.child("Global").child("Flags").observe(DataEventType.value) { (snapshot) in
+            //print(snapshot.value)
+            let flags = snapshot.value! as! [String:[String:Any]]
+            for flag in flags{
+                let flag = flag.key as! String
+                let status = flags[flag]!["Status"]! as! String
+                if status == "Captured"{
+                    print(flag)
+                    print(flagHash[flag]!)
+                    let annotation = flagHash[flag]!
+                    if annotation.imageName == "captured"{
+                        continue
+                    }
+                    self.mapView.removeAnnotation(annotation)
+                    annotation.imageName = "captured"
+                    self.mapView.addAnnotation(annotation)
+                    
+                    
+                }
+            }
+            
+        }
     }
     
     func generateRandomString() -> String {
@@ -171,6 +207,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateGlobalCountdown), userInfo: nil, repeats: true)
     }
     
+
     func scheduledLocationFetcher(){
         //scheduled timer to fetch for locations
         timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchLocationsFromDatabase), userInfo: nil, repeats: true)
@@ -180,7 +217,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @objc func fetchLocationsFromDatabase(){
         self.mapView.removeAnnotations(annotations)
         getLocations(callback: { (players) -> Void in
-            print(players)
             for location in players {
                 let annotation = CustomPointAnnotation()
                 annotation.imageName = "self"
@@ -453,9 +489,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             var players = [[Double]]()
             let values = snapshot.value as? [String:[String:Any]]
-            print(values)
             for value in values!{
                 if value.key == self.receivedCustomHash {
+
                     continue
                 }
                 
@@ -463,8 +499,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 if location["Latitude"] != nil{
                     let lat = location["Latitude"]!
                     let lon = location["Longitude"]!
-                    print("lat", lat)
-                    print("lon", lon)
                     players.append([lat as! Double , lon as! Double])
                 }
             }
