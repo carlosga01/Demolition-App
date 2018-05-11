@@ -20,9 +20,9 @@
 		860299BB209250EA003CD7C3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 860299B9209250EA003CD7C3 /* LaunchScreen.storyboard */; };
 		860299C6209250EA003CD7C3 /* DemolitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299C5209250EA003CD7C3 /* DemolitionTests.swift */; };
 		860299D1209250EA003CD7C3 /* DemolitionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299D0209250EA003CD7C3 /* DemolitionUITests.swift */; };
-		860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60D2097E0CA00B12F27 /* SigninViewController.swift */; };
 		860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60F209A874C00B12F27 /* DefenderViewController.swift */; };
 		86A9BCD52096D541007CC548 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9BCD42096D541007CC548 /* Constants.swift */; };
+		86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7043320A54269001B91C2 /* HostLobbyViewController.swift */; };
 		A07167A33EEA68440870734E /* Pods_DemolitionUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -65,9 +65,9 @@
 		860299CC209250EA003CD7C3 /* DemolitionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DemolitionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		860299D0209250EA003CD7C3 /* DemolitionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemolitionUITests.swift; sourceTree = "<group>"; };
 		860299D2209250EA003CD7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		860DA60D2097E0CA00B12F27 /* SigninViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		860DA60F209A874C00B12F27 /* DefenderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefenderViewController.swift; sourceTree = "<group>"; };
 		86A9BCD42096D541007CC548 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		86D7043320A54269001B91C2 /* HostLobbyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostLobbyViewController.swift; sourceTree = "<group>"; };
 		AFB76F533638D41AE9EE605C /* Pods-Demolition.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demolition.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Demolition/Pods-Demolition.debug.xcconfig"; sourceTree = "<group>"; };
 		B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DemolitionUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28B076BC2299AF7477439DA /* Pods-DemolitionUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemolitionUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DemolitionUITests/Pods-DemolitionUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -143,7 +143,7 @@
 			children = (
 				860299B0209250E7003CD7C3 /* AppDelegate.swift */,
 				0DC51F2120A400E90014158B /* NewGameViewController.swift */,
-				860DA60D2097E0CA00B12F27 /* SigninViewController.swift */,
+				86D7043320A54269001B91C2 /* HostLobbyViewController.swift */,
 				0D0A451B20A4BFB700C166A3 /* JoinGameViewController.swift */,
 				0D0A451D20A4D9C200C166A3 /* RegularLobbyViewController.swift */,
 				860299B2209250E7003CD7C3 /* AttackerViewController.swift */,
@@ -414,11 +414,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D0A451E20A4D9C200C166A3 /* RegularLobbyViewController.swift in Sources */,
-				860DA60E2097E0CA00B12F27 /* SigninViewController.swift in Sources */,
 				860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */,
 				860299B3209250E7003CD7C3 /* AttackerViewController.swift in Sources */,
 				86A9BCD52096D541007CC548 /* Constants.swift in Sources */,
 				860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */,
+				86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */,
 				0DC51F2220A400EA0014158B /* NewGameViewController.swift in Sources */,
 				0D0A451C20A4BFB700C166A3 /* JoinGameViewController.swift in Sources */,
 			);

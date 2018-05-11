@@ -54,7 +54,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     var receivedPartyID = ""
     var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
-    var hit = false;
+    var scanning = false;
     var endTime = 0.0
     var pressType = "";
     var customHash = ""
@@ -96,12 +96,16 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
         }
         
-        let player = self.ref.child("Players").child(customHash)
-        player.child("Name").setValue(name.text!)
+        //set the values in the hash section of the DB
+        let party = self.ref.child("Parties").child(receivedPartyID)
+        let player = party.child("Players").child(receivedCustomHash)
+        player.child("Name").setValue(receivedName)
         player.child("Team").setValue("Defender")
         player.child("Status").setValue("Alive")
         
-        let playerStatusListener = self.ref.child("Players").child(customHash).child("Status")
+        
+        //listen to see if player dies
+        let playerStatusListener = player.child("Status")
         playerStatusListener.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String;
             if status == "Alive" {
@@ -111,11 +115,12 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         
-        playerLatitude = player.child("Location").child("Longitude")
-        playerLongitude = player.child("Location").child("Latitiude")
+        //create Location folder in DB for player
+        player.child("Location").child("Longitude").setValue(0)
+        player.child("Location").child("Latitiude").setValue(0)
         
         // listen to endTime value from database
-        self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+        party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
             let value = snapshot.value as! TimeInterval
             self.endTime = value
         }) { (error) in
@@ -215,16 +220,22 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             return false
         }
         
-        print("[DEBUG] Scanning started")
-        
-        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(DefenderViewController.scanTimeout), userInfo: nil, repeats: false)
-        
-        self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
-        
-        return true
+        if scanning == false {
+            scanning == true;
+            print("[DEBUG] Scanning started")
+            
+            Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(DefenderViewController.scanTimeout), userInfo: nil, repeats: false)
+            
+            self.centralManager?.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+            
+            return true
+        } else {
+            return false
+        }
     }
     
     @objc private func scanTimeout() {
+        scanning = false;
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         
@@ -308,7 +319,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Dead")
             }
             buttons.append(button)
         }
@@ -330,7 +341,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Alive")
             }
             buttons.append(button)
         }
@@ -343,15 +354,15 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
-        let dbReference = self.ref.child("Players")
-        // READ VALUE FROM DATABASE
+        let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         
+        // READ VALUE FROM DATABASE
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
             var players = [[String]]()
             
             let values = snapshot.value as? [String:[String:Any]]
-//            print(hashList)
+            
             for hash in hashList {
                 
                 let player = values![hash]
@@ -398,15 +409,10 @@ extension DefenderViewController : CBCentralManagerDelegate {
         
         peripherals.append(peripheral)
         
-        print(peripherals)
-        
         if advertisementData["kCBAdvDataLocalName"] != nil {
             nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
         }
-        
-        
     }
-    
     
 }
 

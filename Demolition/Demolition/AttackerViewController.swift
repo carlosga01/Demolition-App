@@ -56,7 +56,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var receivedCustomHash = ""
     let SCAN_TIMEOUT = 1.0
     let SCAN_TIMEOUT_CAPTURE = 5.0
-    var hit = false;
+    var scanning = false;
     var endTime = 0.0
     var pressType = "";
     
@@ -113,12 +113,16 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
         }
         
-        let player = self.ref.child("Players").child(customHash)
-        player.child("Name").setValue(name.text!)
+        //set the values in the hash section of the DB
+        let party = self.ref.child("Parties").child(receivedPartyID)
+        let player = party.child("Players").child(receivedCustomHash)
+        player.child("Name").setValue(receivedName)
         player.child("Team").setValue("Attacker")
         player.child("Status").setValue("Alive")
         
-        let playerStatusListener = self.ref.child("Players").child(customHash).child("Status")
+        
+        //listen to see if player dies
+        let playerStatusListener = player.child("Status")
         playerStatusListener.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String;
             if status == "Alive" {
@@ -128,19 +132,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             }
         }
         
-        let playerLocationListener = self.ref.child("Players")
-        playerLocationListener.observe(DataEventType.value){ (snapshot) in
-            let players = snapshot.value as? [String : [String : Any]]
-            for player in players!{
-                let location = player.value["Location"]!
-            }
-        }
-        
-        playerLatitude = player.child("Location").child("Longitude")
-        playerLongitude = player.child("Location").child("Latitiude")
+        //create Location folder in DB for player
+        player.child("Location").child("Longitude").setValue(0)
+        player.child("Location").child("Latitiude").setValue(0)
 
         // listen to endTime value from database
-        self.ref.child("global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+        party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
             let value = snapshot.value as! TimeInterval
             self.endTime = value
         }) { (error) in
@@ -277,16 +274,25 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             return false
         }
         
-        print("[DEBUG] Scanning started")
+        if self.scanning == false {
+            self.scanning = true;
+            
+            print("[DEBUG] Scanning started")
+            
+            Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(AttackerViewController.scanTimeout), userInfo: nil, repeats: false)
+            
+            self.centralManager?.scanForPeripherals(withServices: [CBUUID(string: "FEAA"), Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+            
+            return true
+        } else {
+            return false
+        }
         
-        Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(AttackerViewController.scanTimeout), userInfo: nil, repeats: false)
-        
-        self.centralManager?.scanForPeripherals(withServices: [CBUUID(string: "FEAA"), Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
-        
-        return true
+            
     }
     
     @objc private func scanTimeout() {
+        self.scanning = false
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         
@@ -377,7 +383,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Dead")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Dead")
             }
             buttons.append(button)
         }
@@ -399,7 +405,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Players").child(hash!).child("Status").setValue("Alive")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Alive")
             }
             buttons.append(button)
         }
@@ -420,7 +426,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for hill in hills {
             
             let button = DefaultButton(title: hill) {
-                //self.ref.child("Parties").child(partyID).child("Anthills").child(hill).setValue("captured")
+                //TODO: capture the selected hill in the DB
             }
             buttons.append(button)
         }
@@ -433,15 +439,15 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
-        let dbReference = self.ref.child("Players")
-        // READ VALUE FROM DATABASE
+        let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         
+        // READ VALUE FROM DATABASE
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
             var players = [[String]]()
             
             let values = snapshot.value as? [String:[String:Any]]
-            //            print(hashList)
+            
             for hash in hashList {
                 let player = values![hash]
                 let name = player!["Name"] as! String
@@ -486,11 +492,10 @@ extension AttackerViewController : CBCentralManagerDelegate {
         
         peripherals.append(peripheral)
         
-//        print(peripheral.name)
-//        print(advertisementData[""])
-        
         if advertisementData["kCBAdvDataLocalName"] != nil {
             let name = peripheral.name as! String
+            
+            //TODO: accept all anthill names
             if name == "anthill" || name == "anthill2" {
                 nearbyHills.insert(name)
             } else if name.count == 8 {
