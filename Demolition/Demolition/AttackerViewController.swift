@@ -183,6 +183,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         
         if gameTimeRemaining < 0 {
+            //TODO: make the game actually stop when its over
             let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
             self.present(alertController, animated: true, completion: nil)
@@ -383,7 +384,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Dead")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
             }
             buttons.append(button)
         }
@@ -405,7 +406,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             
             let button = DefaultButton(title: name) {
                 let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash).child("Status").setValue("Alive")
+                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
             }
             buttons.append(button)
         }
