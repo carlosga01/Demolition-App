@@ -116,6 +116,7 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     @IBAction func startButton(_ sender: UIButton) {
         self.ref.child("Parties").child(partyID).child("Global").child("gameState").setValue("inProgress")
+        self.ref.child("Parties").child(partyID).child("Global").child("flagsCaptured").setValue(0)
     }
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {

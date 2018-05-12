@@ -154,15 +154,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             count += 1
         }
         
-        
+        // listen for flag statuses from Database
         var flagHash = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6, "Flag7": annotation7]
         party.child("Global").child("Flags").observe(DataEventType.value) { (snapshot) in
-            //print(snapshot.value)
             let flags = snapshot.value! as! [String:[String:Any]]
-            for flag in flags{
-                let flag = flag.key as! String
+            for flag in flags {
+                let flag = flag.key
                 let status = flags[flag]!["Status"]! as! String
-                if status == "Captured"{
+                if status == "Captured" {
                     print(flag)
                     print(flagHash[flag]!)
                     let annotation = flagHash[flag]!
@@ -172,18 +171,31 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                     self.mapView.removeAnnotation(annotation)
                     annotation.imageName = "captured"
                     self.mapView.addAnnotation(annotation)
-                    
-                    
                 }
             }
-            
+        }
+        
+        // game status listener
+        let gameState = self.ref.child("Parties").child(receivedPartyID).child("Global").child("gameState")
+        gameState.observe(DataEventType.value) { (snapshot) in
+            let status = snapshot.value as! String
+            if status == "isOver" {
+                // perform segue to Game Over screen
+                self.performSegue(withIdentifier: "gameOverSegue", sender: nil)
+            }
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is GameOverViewController  {
+            let vc = segue.destination as? GameOverViewController
+            vc?.receivedPartyID = receivedPartyID
         }
     }
     
     func generateRandomString() -> String {
         let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let len = UInt32(letters.length)
-        
         var randomString = ""
         
         for _ in 0 ..< 8 {
@@ -208,13 +220,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     }
     
 
-    func scheduledLocationFetcher(){
+    func scheduledLocationFetcher() {
         //scheduled timer to fetch for locations
         timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchLocationsFromDatabase), userInfo: nil, repeats: true)
         
     }
     
-    @objc func fetchLocationsFromDatabase(){
+    @objc func fetchLocationsFromDatabase() {
         self.mapView.removeAnnotations(annotations)
         getLocations(callback: { (players) -> Void in
             for location in players {
@@ -237,10 +249,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         
         if gameTimeRemaining < 0 {
-            //TODO: make the game actually stop when its over
-            let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.ref.child("Parties").child(receivedPartyID).child("Global").child("gameState").setValue("isOver")
         }
     }
     
@@ -361,7 +370,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
                 
-                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                fetchPlayersFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
                     
                     for player in players {
                         let team = player[1]
@@ -386,7 +395,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             else if pressType == "revive" {
                 var inRangeNames = [String : String]()
                 
-                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                fetchPlayersFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
                     
                     for player in players {
                         let team = player[1]
@@ -507,8 +516,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         })
     
     }
-    
-    func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
+
+    func fetchPlayersFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
         let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         

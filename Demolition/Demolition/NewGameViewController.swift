@@ -36,7 +36,9 @@ class NewGameViewController: UIViewController {
             playerRef.child("Status").setValue("Alive")
             self.performSegue(withIdentifier: "hostLobbySegue", sender: nil)
         } else {
-            print("player name is empty")
+            let alertController = UIAlertController(title: "Enter your name", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
         }
     }
     
@@ -46,7 +48,9 @@ class NewGameViewController: UIViewController {
         if self.playerName.text != "" {
             self.performSegue(withIdentifier: "joinGameSegue", sender: nil)
         } else {
-            print("player name is empty")
+            let alertController = UIAlertController(title: "Enter your name", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+            self.present(alertController, animated: true, completion: nil)
         }
     }
     
