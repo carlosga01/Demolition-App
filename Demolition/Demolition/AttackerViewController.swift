@@ -61,6 +61,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     var nearbyDevices = Set<String>()
     var nearbyHills = Set<String>()
+    var capturedHills = Set<String>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -143,6 +144,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             print(error.localizedDescription)
         }
         
+        
         //append flags to database
         var flagLocations = [annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7]
         var count = 1
@@ -159,12 +161,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         party.child("Global").child("Flags").observe(DataEventType.value) { (snapshot) in
             //print(snapshot.value)
             let flags = snapshot.value! as! [String:[String:Any]]
-            for flag in flags{
+            for flag in flags {
                 let flag = flag.key as! String
+                print(flag)
                 let status = flags[flag]!["Status"]! as! String
                 if status == "Captured"{
-                    print(flag)
-                    print(flagHash[flag]!)
+                    self.capturedHills.insert(flag)
+                    
                     let annotation = flagHash[flag]!
                     if annotation.imageName == "captured"{
                         continue
@@ -349,7 +352,18 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         if pressType == "capture" {
             if nearbyHills.count > 0 {
-                self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: nearbyHills)
+                var unCapturedHills = Set<String>()
+                for hill in nearbyHills {
+                    if !self.capturedHills.contains(hill) {
+                        unCapturedHills.insert(hill)
+                    }
+                }
+                
+                if unCapturedHills.count > 0 {
+                    self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: unCapturedHills)
+                } else {
+                    self.generateCapturePopup(title: "No hills in range to capture!", message: "Go get 'em ", hills: Set<String>())
+                }
             } else {
                 self.generateCapturePopup(title: "No hills in range to capture!", message: "Go get 'em ", hills: Set<String>())
             }
@@ -468,11 +482,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         // Create the dialog
         let popup = PopupDialog(title: title, message: message, image: nil)
         
+        let flags = self.ref.child("Parties").child(receivedPartyID).child("Global").child("Flags")
         var buttons = [PopupDialogButton]()
         for hill in hills {
             
             let button = DefaultButton(title: hill) {
-                //TODO: capture the selected hill in the DB
+                flags.child(hill).child("Status").setValue("Captured")
             }
             buttons.append(button)
         }
@@ -524,7 +539,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 let status = player!["Status"] as! String
                 players.append([name, team, status, hash])
             }
-            
             callback(players)
         })
     }
@@ -559,9 +573,11 @@ extension AttackerViewController : CBCentralManagerDelegate {
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
             let name = peripheral.name as! String
-            
+
             // TODO: accept all anthill names
-            if name == "anthill" || name == "anthill2" {
+            let flags = ["Flag1", "Flag2", "Flag3", "Flag4", "Flag5", "Flag6", "Flag7"]
+
+            if flags.contains(name) {
                 nearbyHills.insert(name)
             } else if name.count == 8 {
                 nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
