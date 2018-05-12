@@ -80,7 +80,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         self.locationManager.requestWhenInUseAuthorization()
         
         if CLLocationManager.locationServicesEnabled() {
-            print("location services on!")
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
@@ -189,9 +188,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         self.playerLongitude.setValue(location.coordinate.longitude)
         
         self.mapView.showsUserLocation = true;
-        
     }
-    
     
     @IBAction func fireButton(_ sender: UIButton) {
         if ammo > 0 {
@@ -361,7 +358,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             var players = [[String]]()
             
             let values = snapshot.value as? [String:[String:Any]]
-            print(hashList)
             for hash in hashList {
                 let player = values![hash]
                 let name = player!["Name"] as! String

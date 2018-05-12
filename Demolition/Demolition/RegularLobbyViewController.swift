@@ -29,6 +29,8 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var defenders: [String] = []
     
     var ref: DatabaseReference!
+    var teamsRef: DatabaseReference!
+    var gameStateRef: DatabaseReference!
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -68,17 +70,21 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         nameLabel.text = playerName
         
         ref = Database.database().reference()
+        teamsRef = ref.child("Parties").child(partyID).child("Teams")
+        gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         // teams listener
-        let teams = self.ref.child("Parties").child(partyID).child("Teams")
-        teams.child(playerName).setValue("Attacker")
-        teams.observe(DataEventType.value) { (snapshot) in
+        teamsRef.child(playerName).setValue("Attacker")
+        teamsRef.observe(DataEventType.value) { (snapshot) in
             let value = snapshot.value as! NSDictionary
             self.attackers.removeAll()
             self.defenders.removeAll()
             for name in value.allKeys {
                 let team = value[name] as! String
-                
                 if team == "Attacker" {
                     self.attackers.append(name as! String)
                 } else if team == "Defender" {
@@ -91,8 +97,7 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         }
         
         // game status listener
-        let gameState = self.ref.child("Parties").child(partyID).child("Global").child("gameState")
-        gameState.observe(DataEventType.value) { (snapshot) in
+        gameStateRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as! String
             if status == "inProgress" {
                 // segue into vc
@@ -103,6 +108,13 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
                 }
             }
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        ref.removeAllObservers()
+        teamsRef.removeAllObservers()
+        gameStateRef.removeAllObservers()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -122,10 +134,10 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
-            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Attacker")
+            teamsRef.child(playerName).setValue("Attacker")
             
         case 1:
-            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Defender")
+            teamsRef.child(playerName).setValue("Defender")
         default:
             print("[ERROR] Team Selection Error.")
         }

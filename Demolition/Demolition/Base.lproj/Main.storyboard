@@ -6,7 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -681,7 +680,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GAME OVER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ehA-QN-8ht">
-                                <rect key="frame" x="62.999999999999986" y="214" width="249.66666666666663" height="47"/>
+                                <rect key="frame" x="78.333333333333329" y="214" width="219.33333333333337" height="47"/>
                                 <fontDescription key="fontDescription" name="Futura-Medium" family="Futura" pointSize="36"/>
                                 <color key="textColor" red="0.18823529410000001" green="0.1529411765" blue="0.1529411765" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -693,9 +692,12 @@
                                     <constraint firstAttribute="height" constant="96" id="Jei-n0-Vua"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
-                                <state key="normal" title="NEW GAME">
+                                <state key="normal" title="MAIN MENU">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
+                                <connections>
+                                    <segue destination="E5F-Fj-Ted" kind="show" id="7z3-GK-emv"/>
+                                </connections>
                             </button>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kNJ-ak-dJu" userLabel="iphoneX Bottom">
                                 <rect key="frame" x="0.0" y="778" width="375" height="34"/>
@@ -703,10 +705,7 @@
                                 <color key="backgroundColor" red="0.30196078430000001" green="0.43921568630000002" blue="0.30196078430000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DEFENDERS WIN!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lyO-e9-nfX">
-                                <rect key="frame" x="95" y="366" width="184" height="80"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="lyO-e9-nfX" secondAttribute="height" multiplier="23:10" id="JeR-YY-gaz"/>
-                                </constraints>
+                                <rect key="frame" x="108.66666666666669" y="395" width="157" height="22.333333333333314"/>
                                 <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
                                 <color key="textColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -715,19 +714,18 @@
                         <color key="backgroundColor" red="0.74901960779999999" green="0.69019607839999997" blue="0.51372549020000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="XfC-yS-FfH" firstAttribute="leading" secondItem="T8N-TQ-bHO" secondAttribute="leading" id="4iu-HV-eOa"/>
-                            <constraint firstItem="lyO-e9-nfX" firstAttribute="leading" secondItem="T8N-TQ-bHO" secondAttribute="leading" constant="95" id="84v-fH-yHl"/>
                             <constraint firstItem="lyO-e9-nfX" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="M4K-k7-BGt"/>
                             <constraint firstAttribute="trailing" secondItem="XfC-yS-FfH" secondAttribute="trailing" id="WnK-Wy-Dsw"/>
-                            <constraint firstAttribute="trailing" secondItem="ehA-QN-8ht" secondAttribute="trailing" constant="62.333333333333371" id="WpE-ZC-fW5"/>
                             <constraint firstItem="XfC-yS-FfH" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="cAe-6Q-NVa"/>
-                            <constraint firstAttribute="trailing" secondItem="lyO-e9-nfX" secondAttribute="trailing" constant="96" id="cwM-mV-BYg"/>
                             <constraint firstItem="lyO-e9-nfX" firstAttribute="centerY" secondItem="T8N-TQ-bHO" secondAttribute="centerY" id="e3N-YX-fVF"/>
                             <constraint firstItem="ehA-QN-8ht" firstAttribute="top" secondItem="1wU-e8-RBf" secondAttribute="bottom" constant="170" id="soX-dN-t1V"/>
                             <constraint firstItem="ehA-QN-8ht" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="uPv-yP-JuQ"/>
                             <constraint firstItem="uuf-gH-jnN" firstAttribute="top" secondItem="XfC-yS-FfH" secondAttribute="bottom" id="xDT-CU-HmK"/>
-                            <constraint firstItem="ehA-QN-8ht" firstAttribute="leading" secondItem="T8N-TQ-bHO" secondAttribute="leading" constant="63" id="zij-jn-LV1"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="winnerLabel" destination="lyO-e9-nfX" id="l4y-4L-zFu"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GFU-OJ-rEZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

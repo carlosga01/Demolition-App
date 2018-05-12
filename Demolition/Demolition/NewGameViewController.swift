@@ -44,7 +44,6 @@ class NewGameViewController: UIViewController {
     
     @IBAction func joinGameButtonClick(_ sender: UIButton) {
         customHash = generateRandomString()
-
         if self.playerName.text != "" {
             self.performSegue(withIdentifier: "joinGameSegue", sender: nil)
         } else {
