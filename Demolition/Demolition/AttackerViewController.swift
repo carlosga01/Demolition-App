@@ -534,14 +534,16 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for hill in hills {
             
             let button = DefaultButton(title: hill) {
-                flags.child(hill).child("Status").setValue("Captured")
-                
-                //increment flagsCaptured in database
-                self.ref.child("Parties").child(self.receivedPartyID).child("Global").child("flagsCaptured").observeSingleEvent(of: .value, with: { (snapshot) in
-                    var value = snapshot.value as! Int
-                    value = value + 1
-                    self.ref.child("Parties").child(self.receivedPartyID).child("Global").child("flagsCaptured").setValue(value)
-                })
+                if self.playerStatus.text == "Alive" {
+                    flags.child(hill).child("Status").setValue("Captured")
+                    
+                    //increment flagsCaptured in database
+                    self.ref.child("Parties").child(self.receivedPartyID).child("Global").child("flagsCaptured").observeSingleEvent(of: .value, with: { (snapshot) in
+                        var value = snapshot.value as! Int
+                        value = value + 1
+                        self.ref.child("Parties").child(self.receivedPartyID).child("Global").child("flagsCaptured").setValue(value)
+                    })
+                }
             }
             buttons.append(button)
         }
