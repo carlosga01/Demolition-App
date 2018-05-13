@@ -383,7 +383,7 @@ extension DefenderViewController : CBPeripheralManagerDelegate {
             
             initService()
             
-            let advertisementData = customHash;
+            let advertisementData = receivedCustomHash;
             
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }

@@ -28,6 +28,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     var playerLatitude: DatabaseReference = DatabaseReference()
     var playerLongitude: DatabaseReference = DatabaseReference()
+    var myLat: Double?
+    var myLon: Double?
+    var myHeading: Double?
     
     // BLUETOOTH VARIABLES
     var centralManager: CBCentralManager?
@@ -75,6 +78,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.mapView.delegate = self
         
         runGlobalCountdown()
@@ -93,6 +97,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
+            locationManager.startUpdatingHeading()
         }
 
         self.mapView.addAnnotations(Array(receivedFlags.values))
@@ -137,8 +142,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         playerStatusRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String
             if status == "Alive" {
+                //TODO: remove red overlay and enable buttons
                 self.playerStatus.text = "Alive"
             } else if status == "Dead" {
+                //TODO: add red overlay and disable buttons
                 self.playerStatus.text = "Dead"
             }
         }
@@ -301,8 +308,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         self.playerLatitude.setValue(location.coordinate.latitude)
         self.playerLongitude.setValue(location.coordinate.longitude)
+        self.myLat = location.coordinate.latitude
+        self.myLon = location.coordinate.longitude
         
         self.mapView.showsUserLocation = true
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        self.myHeading = newHeading.magneticHeading
     }
     
     @IBAction func reviveButton(_ sender: UIButton) {
@@ -386,7 +399,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         // Check for nearby devices
         if nearbyDevices.count > 0 {
-            
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
                 
@@ -397,10 +409,22 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         let status = player[2]
                         let name = player[0]
                         let hash = player[3]
+                        let lat2 = Double(player[4])
+                        let lon2 = Double(player[5])
                         
                         if team == "Defender" && status == "Alive" {
-                            //TODO: check if person is being aimed at
-                            inRangeNames[name] = hash
+                            let me = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(self.myLat!), longitude: CLLocationDegrees(self.myLon!)))
+                            let enemy = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(lat2!), longitude: CLLocationDegrees(lon2!)))
+                            
+                            let distanceToEnemy = MKMetersBetweenMapPoints(me, enemy)
+                            let headingToEnemy = atan2(sin(lon2!-self.myLon!)*cos(lat2!), cos(self.myLat!)*sin(lat2!)-sin(self.myLat!)*cos(lat2!)*cos(lon2!-self.myLon!))
+                            
+                            let delta = abs(headingToEnemy - self.myHeading!)
+                            
+                            if delta < 45 || distanceToEnemy < 5 {
+                                inRangeNames[name] = hash
+                            }
+                            
                         }
                     }
                     
@@ -559,7 +583,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
-                players.append([name, team, status, hash])
+                
+                let location = player!["Location"] as! Dictionary<String, Double>
+                print(hash)
+                print(location)
+                let lat = String(format:"%f", location["Latitude"]!)
+                let lon = String(format:"%f", location["Longitude"]!)
+                
+                players.append([name, team, status, hash, lat, lon])
             }
             callback(players)
         })
@@ -576,7 +607,6 @@ extension AttackerViewController : CBPeripheralManagerDelegate {
             initService()
             
             let advertisementData = receivedCustomHash
-            
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }
     }
@@ -594,15 +624,17 @@ extension AttackerViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
-            let name = peripheral.name as! String
-
-            // TODO: accept all anthill names
+            let name = peripheral.name
+            let hash = advertisementData["kCBAdvDataLocalName"] as? String
+            
             let flags = ["Flag1", "Flag2", "Flag3", "Flag4", "Flag5", "Flag6", "Flag7"]
-
-            if flags.contains(name) {
-                nearbyHills.insert(name)
-            } else if name.count == 8 {
-                nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
+    
+            if flags.contains(name!) {
+                if RSSI.decimalValue > -70 {
+                    nearbyHills.insert(name!)
+                }
+            } else if hash!.count == 8 {
+                nearbyDevices.insert(hash!)
             }
         }
     }

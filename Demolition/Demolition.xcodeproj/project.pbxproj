@@ -21,6 +21,8 @@
 		860299C6209250EA003CD7C3 /* DemolitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299C5209250EA003CD7C3 /* DemolitionTests.swift */; };
 		860299D1209250EA003CD7C3 /* DemolitionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860299D0209250EA003CD7C3 /* DemolitionUITests.swift */; };
 		860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860DA60F209A874C00B12F27 /* DefenderViewController.swift */; };
+		863490CD20A8A85E00E87BD3 /* GameOverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863490CB20A8A85E00E87BD3 /* GameOverViewController.swift */; };
+		863490CE20A8A85E00E87BD3 /* CustomPointAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863490CC20A8A85E00E87BD3 /* CustomPointAnnotation.swift */; };
 		86A9BCD52096D541007CC548 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9BCD42096D541007CC548 /* Constants.swift */; };
 		86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7043320A54269001B91C2 /* HostLobbyViewController.swift */; };
 		A07167A33EEA68440870734E /* Pods_DemolitionUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */; };
@@ -66,6 +68,8 @@
 		860299D0209250EA003CD7C3 /* DemolitionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemolitionUITests.swift; sourceTree = "<group>"; };
 		860299D2209250EA003CD7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		860DA60F209A874C00B12F27 /* DefenderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefenderViewController.swift; sourceTree = "<group>"; };
+		863490CB20A8A85E00E87BD3 /* GameOverViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameOverViewController.swift; sourceTree = "<group>"; };
+		863490CC20A8A85E00E87BD3 /* CustomPointAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPointAnnotation.swift; sourceTree = "<group>"; };
 		86A9BCD42096D541007CC548 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		86D7043320A54269001B91C2 /* HostLobbyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostLobbyViewController.swift; sourceTree = "<group>"; };
 		AFB76F533638D41AE9EE605C /* Pods-Demolition.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demolition.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Demolition/Pods-Demolition.debug.xcconfig"; sourceTree = "<group>"; };
@@ -141,6 +145,8 @@
 		860299AF209250E7003CD7C3 /* Demolition */ = {
 			isa = PBXGroup;
 			children = (
+				863490CC20A8A85E00E87BD3 /* CustomPointAnnotation.swift */,
+				863490CB20A8A85E00E87BD3 /* GameOverViewController.swift */,
 				860299B0209250E7003CD7C3 /* AppDelegate.swift */,
 				0DC51F2120A400E90014158B /* NewGameViewController.swift */,
 				86D7043320A54269001B91C2 /* HostLobbyViewController.swift */,
@@ -419,8 +425,10 @@
 				86A9BCD52096D541007CC548 /* Constants.swift in Sources */,
 				860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */,
 				86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */,
+				863490CE20A8A85E00E87BD3 /* CustomPointAnnotation.swift in Sources */,
 				0DC51F2220A400EA0014158B /* NewGameViewController.swift in Sources */,
 				0D0A451C20A4BFB700C166A3 /* JoinGameViewController.swift in Sources */,
+				863490CD20A8A85E00E87BD3 /* GameOverViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
