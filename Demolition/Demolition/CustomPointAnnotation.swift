@@ -2,7 +2,7 @@
 //  CustomPointAnnotation.swift
 //  Demolition
 //
-//  Created by Omar Gonzalez on 5/12/18.
+//  Created by Carlos Garcia on 5/13/18.
 //  Copyright © 2018 6.S062 Project. All rights reserved.
 //
 
