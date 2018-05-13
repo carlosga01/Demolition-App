@@ -183,9 +183,9 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
             vc?.receivedName = playerName
             vc?.receivedPartyID = partyID
             vc?.receivedCustomHash = customHash
-            
-//            vc?.receivedAttackersList = self.attackers
-//            vc?.receivedDefendersList = self.defenders
+            vc?.receivedAttackersList = self.attackers
+            vc?.receivedDefendersList = self.defenders
+            vc?.receivedFlags = self.flagAnnotations
         } else if segue.destination is AttackerViewController {
             let vc = segue.destination as? AttackerViewController
             vc?.receivedName = playerName

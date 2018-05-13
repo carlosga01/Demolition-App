@@ -246,10 +246,19 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @objc func fetchLocationsFromDatabase() {
         self.mapView.removeAnnotations(self.playerAnnotations)
         getLocations(callback: { (players) -> Void in
-            for location in players {
+            for player in players {
+                if player[2] == "Defender"{
+                    continue
+                }
                 let playerAnnotation = CustomPointAnnotation()
-                playerAnnotation.imageName = "self"
-                playerAnnotation.coordinate = CLLocationCoordinate2D(latitude: location[0], longitude: location[1])
+                
+                if player[3] == "Dead"{
+                    playerAnnotation.imageName = "death"
+                }
+                else{
+                    playerAnnotation.imageName = "self"
+                }
+                playerAnnotation.coordinate = CLLocationCoordinate2D(latitude: Double(player[0])!, longitude: Double(player[1])!)
                 self.playerAnnotations.append(playerAnnotation)
                 self.mapView.addAnnotation(playerAnnotation)
             }
@@ -557,11 +566,11 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         self.present(popup, animated: true, completion: nil)
     }
     
-    func getLocations(callback: @escaping (_ players: [[Double]])->Void){
+    func getLocations(callback: @escaping (_ players: [[String]])->Void){
         let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         // READ VALUE FROM DATABASE
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
-            var players = [[Double]]()
+            var players = [[String]]()
             let values = snapshot.value as? [String:[String:Any]]
             for value in values!{
                 if value.key == self.receivedCustomHash {
@@ -570,10 +579,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 }
                 
                 let location = value.value["Location"]! as! Dictionary<String,AnyObject>
+                let team = value.value["Team"]! as! String
+                let status = value.value["Status"] as! String
                 if location["Latitude"] != nil{
-                    let lat = location["Latitude"]!
-                    let lon = location["Longitude"]!
-                    players.append([lat as! Double , lon as! Double])
+                    let lat = location["Latitude"]! as! Double
+                    let lon = location["Longitude"]! as! Double
+                    players.append([String(lat), String(lon), team, status])
                 }
             }
 
