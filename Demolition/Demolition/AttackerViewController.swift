@@ -421,6 +421,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         let lon2 = Double(player[5])
                         
                         if team == "Defender" && status == "Alive" {
+                            print("hit")
                             let me = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(self.myLat!), longitude: CLLocationDegrees(self.myLon!)))
                             let enemy = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(lat2!), longitude: CLLocationDegrees(lon2!)))
                             
@@ -429,6 +430,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                             
                             let delta = abs(headingToEnemy - self.myHeading!)
                             
+                            print(delta)
+                            print(distanceToEnemy)
                             if delta < 45 || distanceToEnemy < 5 {
                                 inRangeNames[name] = hash
                             }
@@ -642,7 +645,7 @@ extension AttackerViewController : CBCentralManagerDelegate {
                 nearbyHills.insert("Flag7")
             }
             
-            if flags.contains(name!) {
+            else if flags.contains(name!) {
                 if RSSI.decimalValue > -70 {
                     nearbyHills.insert(name!)
                 }
