@@ -360,7 +360,10 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             
             Timer.scheduledTimer(timeInterval: timeout, target: self, selector: #selector(AttackerViewController.scanTimeout), userInfo: nil, repeats: false)
             
-            self.centralManager?.scanForPeripherals(withServices: [CBUUID(string: "FEAA"), Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+            
+            let newNodeService = CBUUID(string: "713D0000-503E-4C75-BA94-3148F18D941E")
+            self.centralManager?.scanForPeripherals(withServices: [CBUUID(string: "FEAA"), Constants.SERVICE_UUID, newNodeService], options: [CBCentralManagerScanOptionAllowDuplicatesKey : true])
+            
             
             return true
         } else {
@@ -388,7 +391,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 }
                 
                 if unCapturedHills.count > 0 {
-                    self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: unCapturedHills)
+                    
+                    //check if player is still alive
+
+                    if self.playerStatus.text == "Alive" {
+                        self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: unCapturedHills)
+                    }
                 } else {
                     self.generateCapturePopup(title: "No hills in range to capture!", message: "Go get 'em ", hills: Set<String>())
                 }
@@ -585,8 +593,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 let status = player!["Status"] as! String
                 
                 let location = player!["Location"] as! Dictionary<String, Double>
-                print(hash)
-                print(location)
                 let lat = String(format:"%f", location["Latitude"]!)
                 let lon = String(format:"%f", location["Longitude"]!)
                 
@@ -622,13 +628,18 @@ extension AttackerViewController : CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
         peripherals.append(peripheral)
-        
+
         if advertisementData["kCBAdvDataLocalName"] != nil {
             let name = peripheral.name
             let hash = advertisementData["kCBAdvDataLocalName"] as? String
             
             let flags = ["Flag1", "Flag2", "Flag3", "Flag4", "Flag5", "Flag6", "Flag7"]
-    
+            
+            //TODO: remove this when we get a new node
+            if name == "HILL11" {
+                nearbyHills.insert("Flag7")
+            }
+            
             if flags.contains(name!) {
                 if RSSI.decimalValue > -70 {
                     nearbyHills.insert(name!)
