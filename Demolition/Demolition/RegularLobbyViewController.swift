@@ -15,7 +15,9 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var playerName: String = ""
     var partyID: String = ""
     var customHash: String = ""
-    var lightGreenColor = UIColor(red: CGFloat(147.0/255.0), green: CGFloat(175.0/255.0), blue: CGFloat(147.0/255.0), alpha: CGFloat(1.0))
+    
+    var lightBrownColor = UIColor(red: CGFloat(191.0/255.0), green: CGFloat(176.0/255.0), blue: CGFloat(131.0/255.0), alpha: CGFloat(1.0))
+    var darkBrownColor = UIColor(red: CGFloat(48.0/255.0), green: CGFloat(39.0/255.0), blue: CGFloat(39.0/255.0), alpha: CGFloat(1.0))
     
     @IBOutlet weak var attackersTable: UITableView!
     @IBOutlet weak var defendersTable: UITableView!
@@ -27,6 +29,8 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var defenders: [String] = []
     
     var ref: DatabaseReference!
+    var teamsRef: DatabaseReference!
+    var gameStateRef: DatabaseReference!
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -34,13 +38,30 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let selectedTextAttributes: [NSAttributedStringKey: Any] = [
+            .font : UIFont(name: "Futura", size: 17.0)!,
+            .foregroundColor : UIColor.white
+        ]
+        let normalTextAttributes: [NSAttributedStringKey: Any] = [
+            .font : UIFont(name: "Futura", size: 17.0)!,
+            .foregroundColor : darkBrownColor
+        ]
+        teamSelector.setTitleTextAttributes(normalTextAttributes, for: UIControlState.normal)
+        teamSelector.setTitleTextAttributes(selectedTextAttributes, for: UIControlState.selected)
+        teamSelector.superview?.clipsToBounds = true
+        teamSelector.superview?.layer.cornerRadius = 0.0
+        teamSelector.superview?.layer.borderWidth = 1.0
+        teamSelector.superview?.layer.borderColor = darkBrownColor.cgColor
 
-        attackersTable.backgroundColor = lightGreenColor
+        attackersTable.backgroundColor = lightBrownColor
+        attackersTable.rowHeight = 30.0
         attackersTable.delegate = self
         attackersTable.dataSource = self
         attackersTable.register(UITableViewCell.self, forCellReuseIdentifier: "attackerCell")
         
-        defendersTable.backgroundColor = lightGreenColor
+        defendersTable.backgroundColor = lightBrownColor
+        defendersTable.rowHeight = 30.0
         defendersTable.delegate = self
         defendersTable.dataSource = self
         defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
@@ -49,17 +70,21 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         nameLabel.text = playerName
         
         ref = Database.database().reference()
+        teamsRef = ref.child("Parties").child(partyID).child("Teams")
+        gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         // teams listener
-        let teams = self.ref.child("Parties").child(partyID).child("Teams")
-        teams.child(playerName).setValue("Attacker")
-        teams.observe(DataEventType.value) { (snapshot) in
+        teamsRef.child(playerName).setValue("Attacker")
+        teamsRef.observe(DataEventType.value) { (snapshot) in
             let value = snapshot.value as! NSDictionary
             self.attackers.removeAll()
             self.defenders.removeAll()
             for name in value.allKeys {
                 let team = value[name] as! String
-                
                 if team == "Attacker" {
                     self.attackers.append(name as! String)
                 } else if team == "Defender" {
@@ -72,8 +97,7 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         }
         
         // game status listener
-        let gameState = self.ref.child("Parties").child(partyID).child("Global").child("gameState")
-        gameState.observe(DataEventType.value) { (snapshot) in
+        gameStateRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as! String
             if status == "inProgress" {
                 // segue into vc
@@ -84,6 +108,13 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
                 }
             }
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        ref.removeAllObservers()
+        teamsRef.removeAllObservers()
+        gameStateRef.removeAllObservers()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -103,10 +134,10 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
-            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Attacker")
+            teamsRef.child(playerName).setValue("Attacker")
             
         case 1:
-            self.ref.child("Parties").child(partyID).child("Teams").child(playerName).setValue("Defender")
+            teamsRef.child(playerName).setValue("Defender")
         default:
             print("[ERROR] Team Selection Error.")
         }
@@ -141,6 +172,8 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         
         cell?.backgroundColor = UIColor.clear
         cell?.textLabel?.font = UIFont(name: "Futura", size: CGFloat(17.0))
+        cell?.textLabel?.textColor = darkBrownColor
+        cell?.textLabel?.textAlignment = NSTextAlignment.center
         
         return cell!
     }

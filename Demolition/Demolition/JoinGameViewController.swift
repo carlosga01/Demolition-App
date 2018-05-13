@@ -32,15 +32,15 @@ class JoinGameViewController: UIViewController {
         if self.partyIDInput.text != "" {
             // check if party id exists in DB
             let allPartiesRef = self.ref.child("Parties")
-            
             allPartiesRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 if snapshot.hasChild(self.partyIDInput.text!) {
                     let value = snapshot.value as? [String:[String:Any]]
-                    let partyRef = self.ref.child("Parties").child(self.partyIDInput.text!)
+                    let partyRef = allPartiesRef.child(self.partyIDInput.text!)
                     let partyIdAsDict = value![self.partyIDInput.text!]! as Dictionary<String, AnyObject>
                     
                     // check if party is in waiting lobby
                     if partyIdAsDict["Global"]!["gameState"] as! String == "inLobby" {
+                        
                         // send info to corresponding partyID in DB
                         let playerRef = partyRef.child("Players").child(self.customHash)
                         playerRef.child("Name").setValue(self.playerName)
@@ -48,11 +48,15 @@ class JoinGameViewController: UIViewController {
                         playerRef.child("Status").setValue("Alive")
                         self.performSegue(withIdentifier: "conditionSegue", sender: nil)
                     } else {
-                        print("game is already in progress.")
+                        let alertController = UIAlertController(title: "Game is already in progress", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                        self.present(alertController, animated: true, completion: nil)
                     }
                     
                 } else {
-                    print("party does not exist")
+                    let alertController = UIAlertController(title: "Party does not exist", message: "", preferredStyle: UIAlertControllerStyle.alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
                 }
             })     
         }
