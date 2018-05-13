@@ -15,9 +15,17 @@ import Firebase
 import FirebaseDatabase
 import PopupDialog
 
-class DefenderViewController: UIViewController, CLLocationManagerDelegate {
+class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     // DATABASE VARIABLES
     var ref: DatabaseReference!
+    var partyRef: DatabaseReference!
+    var playerRef: DatabaseReference!
+    var playerStatusRef: DatabaseReference!
+    var flagsCapturedRef: DatabaseReference!
+    var localGameStateRef: DatabaseReference!
+    var endTimeRef: DatabaseReference!
+    var globalFlagsRef: DatabaseReference!
+    
     var playerLatitude: DatabaseReference = DatabaseReference();
     var playerLongitude: DatabaseReference = DatabaseReference();
     
@@ -37,41 +45,45 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
     
     
     var ammo = 5;
-    var currentTime = 1000;
-    var timer = Timer();
+    var timer: Timer? = nil;
     var firstCheck = false;
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
-    let annotation1 = MKPointAnnotation()
-    let annotation2 = MKPointAnnotation()
-    let annotation3 = MKPointAnnotation()
-    let annotation4 = MKPointAnnotation()
-    let annotation5 = MKPointAnnotation()
-    let annotation6 = MKPointAnnotation()
-    let annotation7 = MKPointAnnotation()
     
+    var playerAnnotations = [CustomPointAnnotation()]
+    var anView = MKAnnotationView()
+
+    var receivedFlags: Dictionary<String, CustomPointAnnotation> = [:]
     var receivedName = ""
     var receivedPartyID = ""
     var receivedCustomHash = ""
+    
+    var receivedAttackersList: [String] = []
+    var receivedDefendersList: [String] = []
+    
+    var didTimeExpire = false
+    var didCaptureMostFlags = false
+    
     let SCAN_TIMEOUT = 1.0
     var scanning = false;
     var endTime = 0.0
     var pressType = "";
-    var customHash = ""
     var nearbyDevices = Set<String>();
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        scheduledTimerWithTimeInterval()
-        ref = Database.database().reference()
+        self.mapView.delegate = self
+        
+        runGlobalCountdown()
+        scheduledLocationFetcher()
         
         // Do any additional setup after loading the view, typically from a nib.
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        
         name.text = receivedName;
         ammoLeft.text = String(ammo);
         
-        customHash = generateRandomString();
         
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -83,30 +95,75 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
-            annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
-            annotation1.title = "James"
-            annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
-            annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
-            annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
-            annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
-            annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
-            annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
-            self.mapView.addAnnotations([annotation1, annotation2, annotation3, annotation4, annotation5, annotation6, annotation7])
-            
         }
         
-        //set the values in the hash section of the DB
-        let party = self.ref.child("Parties").child(receivedPartyID)
-        let player = party.child("Players").child(receivedCustomHash)
-        player.child("Name").setValue(receivedName)
-        player.child("Team").setValue("Defender")
-        player.child("Status").setValue("Alive")
+        self.mapView.addAnnotations(Array(receivedFlags.values))
+        
+        // references at different levels
+        ref = Database.database().reference()
+        partyRef = ref.child("Parties").child(receivedPartyID)
+        playerRef = partyRef.child("Players").child(receivedCustomHash)
+        playerStatusRef = playerRef.child("Status")
+        flagsCapturedRef = partyRef.child("Global").child("flagsCaptured")
+        localGameStateRef = partyRef.child("Global").child("gameState")
+        endTimeRef = partyRef.child("Global").child("endTime")
+        globalFlagsRef = partyRef.child("Global").child("Flags")
+        
+        //set the values in the player hash section of the DB
+        playerRef.child("Name").setValue(receivedName)
+        playerRef.child("Team").setValue("Defender")
+        playerRef.child("Status").setValue("Alive")
+        
+        //create Location folder in DB for player
+        playerLongitude = playerRef.child("Location").child("Longitude")
+        playerLongitude.setValue(0)
+        playerLatitude = playerRef.child("Location").child("Latitude")
+        playerLatitude.setValue(0)
         
         
-        //listen to see if player dies
-        let playerStatusListener = player.child("Status")
-        playerStatusListener.observe(DataEventType.value) { (snapshot) in
-            let status = snapshot.value as? String;
+        
+//        //listen to see if player dies
+//        let playerStatusListener = player.child("Status")
+//        playerStatusListener.observe(DataEventType.value) { (snapshot) in
+//            let status = snapshot.value as? String;
+//            if status == "Alive" {
+//                self.playerStatus.text = "Alive"
+//            } else if status == "Dead" {
+//                self.playerStatus.text = "Dead"
+//            }
+//        }
+//
+//        //create Location folder in DB for player
+//        player.child("Location").child("Longitude").setValue(0)
+//        player.child("Location").child("Latitude").setValue(0)
+//
+//        // listen to endTime value from database
+//        party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+//            let value = snapshot.value as! TimeInterval
+//            self.endTime = value
+//        }) { (error) in
+//            print(error.localizedDescription)
+//        }
+    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is GameOverViewController  {
+            let vc = segue.destination as? GameOverViewController
+            vc?.receivedPartyID = receivedPartyID
+            vc?.didTimeExpire = didTimeExpire
+            vc?.didCaptureMostFlags = didCaptureMostFlags
+            vc?.receivedAttackersList = receivedAttackersList
+            vc?.receivedDefendersList = receivedDefendersList
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // player status listener
+        playerStatusRef.observe(DataEventType.value) { (snapshot) in
+            let status = snapshot.value as? String
             if status == "Alive" {
                 self.playerStatus.text = "Alive"
             } else if status == "Dead" {
@@ -114,18 +171,63 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         
-        //create Location folder in DB for player
-        player.child("Location").child("Longitude").setValue(0)
-        player.child("Location").child("Latitude").setValue(0)
+        // game status listener
+        localGameStateRef.observe(DataEventType.value) { (snapshot) in
+            let status = snapshot.value as! String
+            if status == "isOver" {
+                // perform segue to Game Over screen
+                self.performSegue(withIdentifier: "gameOverSegue", sender: nil)
+            }
+        }
+        
+        // listen to flagsCaptured
+        flagsCapturedRef.observe(DataEventType.value) { (snapshot) in
+            let numFlagsCaptured = snapshot.value as! Int
+            if numFlagsCaptured >= 4 {
+                self.didCaptureMostFlags = true
+                self.localGameStateRef.setValue("isOver")
+            }
+        }
         
         // listen to endTime value from database
-        party.child("Global").child("endTime").observe(DataEventType.value, with: { (snapshot) in
+        endTimeRef.observe(DataEventType.value, with: { (snapshot) in
             let value = snapshot.value as! TimeInterval
             self.endTime = value
         }) { (error) in
             print(error.localizedDescription)
         }
+        
+        // listen for flag statuses from Database
+        globalFlagsRef.observe(DataEventType.value) { (snapshot) in
+            let flags = snapshot.value! as! [String:[String:Any]]
+            for flag in flags {
+                let flag = flag.key
+                let status = flags[flag]!["Status"]! as! String
+                if status == "Captured" {
+                    let annotation = self.receivedFlags[flag]!
+                    if annotation.imageName == "captured"{
+                        continue
+                    }
+                    self.mapView.removeAnnotation(annotation)
+                    annotation.imageName = "captured"
+                    self.mapView.addAnnotation(annotation)
+                }
+            }
+        }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        playerStatusRef.removeAllObservers()
+        flagsCapturedRef.removeAllObservers()
+        localGameStateRef.removeAllObservers()
+        endTimeRef.removeAllObservers()
+        globalFlagsRef.removeAllObservers()
+        
+        stopTimer()
+        locationManager.stopUpdatingLocation()
+    }
+    
     
     func generateRandomString() -> String {
         
@@ -149,12 +251,24 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-    func scheduledTimerWithTimeInterval(){
-        // Scheduling timer to Call the function "updateCounting" with the interval of 1 seconds
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounting), userInfo: nil, repeats: true)
+    func runGlobalCountdown(){
+        // Scheduling timer to Call the function "updateGlobalCountdown" with the interval of 1 seconds
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateGlobalCountdown), userInfo: nil, repeats: true)
     }
     
-    @objc func updateCounting(){
+    
+    
+    func scheduledLocationFetcher() {
+        //scheduled timer to fetch for locations
+        timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchLocationsFromDatabase), userInfo: nil, repeats: true)
+    }
+    
+    func stopTimer() {
+        self.timer?.invalidate()
+        self.timer = nil
+    }
+    
+    @objc func updateGlobalCountdown() {
         let currentTimestamp = NSDate().timeIntervalSince1970
         let gameTimeRemaining = self.endTime - currentTimestamp
         let interval = Int(gameTimeRemaining)
@@ -164,11 +278,51 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         timeLeft.text = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         
         if gameTimeRemaining < 0 {
-            //TODO: make the game actually stop when its over
-            let alertController = UIAlertController(title: "The game is over!", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alertController, animated: true, completion: nil)
+            self.didTimeExpire = true
+            self.ref.child("Parties").child(receivedPartyID).child("Global").child("gameState").setValue("isOver")
         }
+    }
+    
+    @objc func fetchLocationsFromDatabase() {
+        self.mapView.removeAnnotations(self.playerAnnotations)
+        getLocations(callback: { (players) -> Void in
+            for player in players {
+                if player[2] == "Attacker"{
+                    continue
+                }
+                let playerAnnotation = CustomPointAnnotation()
+                //add dead image
+                if player[3] == "Dead"{
+                    playerAnnotation.imageName = "death"
+                }else{
+                    playerAnnotation.imageName = "self"
+                }
+                playerAnnotation.coordinate = CLLocationCoordinate2D(latitude: Double(player[0])!, longitude: Double(player[1])!)
+                self.playerAnnotations.append(playerAnnotation)
+                self.mapView.addAnnotation(playerAnnotation)
+            }
+        })
+    }
+    
+    func mapView(_ mapView: MKMapView!, viewFor annotation: MKAnnotation!) -> MKAnnotationView! {
+        if annotation.isKind(of: MKUserLocation.self) {
+            return nil
+        }
+        
+        let annotationReuseId = "Place"
+        var anView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationReuseId)
+        if anView == nil {
+            anView = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationReuseId)
+        } else {
+            anView?.annotation = annotation
+        }
+        let cpa = annotation as! CustomPointAnnotation
+        anView?.image = UIImage(named:cpa.imageName)
+        anView?.frame.size = CGSize(width: 30, height: 30)
+        anView?.backgroundColor = UIColor.clear
+        anView?.canShowCallout = false
+        return anView
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -246,7 +400,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             if pressType == "fire" {
                 var inRangeNames = [String : String]()
                     
-                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                fetchPlayersFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
                     
                     for player in players {
                         let team = player[1]
@@ -272,7 +426,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
             else if pressType == "revive" {
                 var inRangeNames = [String : String]()
                 
-                readFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
+                fetchPlayersFromDatabase(hashList: self.nearbyDevices, callback: { (players) -> Void in
                     
                     for player in players {
                         let team = player[1]
@@ -348,7 +502,34 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         self.present(popup, animated: true, completion: nil)
     }
     
-    func readFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
+    func getLocations(callback: @escaping (_ players: [[String]])->Void){
+        let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
+        // READ VALUE FROM DATABASE
+        dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
+            var players = [[String]]()
+            let values = snapshot.value as? [String:[String:Any]]
+            for value in values!{
+                if value.key == self.receivedCustomHash {
+                    
+                    continue
+                }
+                
+                let location = value.value["Location"]! as! Dictionary<String,AnyObject>
+                let team = value.value["Team"]! as! String
+                let status = value.value["Status"] as! String
+                if location["Latitude"] != nil{
+                    let lat = location["Latitude"]! as! Double
+                    let lon = location["Longitude"]! as! Double
+                    players.append([String(lat) , String(lon), team, status])
+                }
+            }
+            
+            callback(players)
+        })
+        
+    }
+    
+    func fetchPlayersFromDatabase(hashList: Set<String>, callback: @escaping (_ players: [[String]])->Void) {
         
         let dbReference = self.ref.child("Parties").child(receivedPartyID).child("Players")
         
@@ -356,8 +537,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate {
         dbReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
             var players = [[String]]()
-            
             let values = snapshot.value as? [String:[String:Any]]
+            
             for hash in hashList {
                 let player = values![hash]
                 let name = player!["Name"] as! String
@@ -383,7 +564,7 @@ extension DefenderViewController : CBPeripheralManagerDelegate {
             
             initService()
             
-            let advertisementData = customHash;
+            let advertisementData = receivedCustomHash;
             
             peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey:[Constants.SERVICE_UUID], CBAdvertisementDataLocalNameKey: advertisementData])
         }

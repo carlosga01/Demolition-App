@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import Firebase
 import FirebaseDatabase
+import MapKit
+import CoreLocation
 
 class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var playerName: String = ""
@@ -31,6 +33,16 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var ref: DatabaseReference!
     var teamsRef: DatabaseReference!
     var gameStateRef: DatabaseReference!
+    
+    var annotation1 = CustomPointAnnotation()
+    var annotation2 = CustomPointAnnotation()
+    var annotation3 = CustomPointAnnotation()
+    var annotation4 = CustomPointAnnotation()
+    var annotation5 = CustomPointAnnotation()
+    var annotation6 = CustomPointAnnotation()
+    var annotation7 = CustomPointAnnotation()
+    
+    var flagAnnotations: Dictionary<String, CustomPointAnnotation> = [:]
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -66,12 +78,26 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         defendersTable.dataSource = self
         defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
         
+        annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+        annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+        annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+        annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+        annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+        annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
+        annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+        
         partyLabel.text = partyID
         nameLabel.text = playerName
         
         ref = Database.database().reference()
         teamsRef = ref.child("Parties").child(partyID).child("Teams")
         gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+        
+        flagAnnotations = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6, "Flag7": annotation7]
+        
+        for location in flagAnnotations.values {
+            location.imageName = "pin"
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -123,11 +149,13 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
             vc?.receivedName = playerName
             vc?.receivedPartyID = partyID
             vc?.receivedCustomHash = customHash
+            vc?.receivedFlags = self.flagAnnotations
         } else if segue.destination is AttackerViewController {
             let vc = segue.destination as? AttackerViewController
             vc?.receivedName = playerName
             vc?.receivedPartyID = partyID
             vc?.receivedCustomHash = customHash
+            vc?.receivedFlags = self.flagAnnotations
         }
     }
     

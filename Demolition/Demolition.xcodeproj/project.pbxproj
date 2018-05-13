@@ -24,6 +24,8 @@
 		86A9BCD52096D541007CC548 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9BCD42096D541007CC548 /* Constants.swift */; };
 		86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7043320A54269001B91C2 /* HostLobbyViewController.swift */; };
 		A07167A33EEA68440870734E /* Pods_DemolitionUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */; };
+		D300E93820A8D103000E4756 /* CustomPointAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D300E93720A8D103000E4756 /* CustomPointAnnotation.swift */; };
+		D300E93A20A8D115000E4756 /* GameOverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D300E93920A8D114000E4756 /* GameOverViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +73,8 @@
 		AFB76F533638D41AE9EE605C /* Pods-Demolition.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demolition.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Demolition/Pods-Demolition.debug.xcconfig"; sourceTree = "<group>"; };
 		B871F54415D5744429D19CCD /* Pods_DemolitionUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DemolitionUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28B076BC2299AF7477439DA /* Pods-DemolitionUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemolitionUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DemolitionUITests/Pods-DemolitionUITests.release.xcconfig"; sourceTree = "<group>"; };
+		D300E93720A8D103000E4756 /* CustomPointAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPointAnnotation.swift; sourceTree = "<group>"; };
+		D300E93920A8D114000E4756 /* GameOverViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameOverViewController.swift; sourceTree = "<group>"; };
 		EDD1E5B44C60655DF1C435AD /* Pods-DemolitionUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemolitionUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DemolitionUITests/Pods-DemolitionUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		FCD84D864A45992D6EBE1313 /* Pods-DemolitionTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemolitionTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DemolitionTests/Pods-DemolitionTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -149,6 +153,8 @@
 				860299B2209250E7003CD7C3 /* AttackerViewController.swift */,
 				860DA60F209A874C00B12F27 /* DefenderViewController.swift */,
 				86A9BCD42096D541007CC548 /* Constants.swift */,
+				D300E93920A8D114000E4756 /* GameOverViewController.swift */,
+				D300E93720A8D103000E4756 /* CustomPointAnnotation.swift */,
 				860299B4209250E7003CD7C3 /* Main.storyboard */,
 				860299B7209250EA003CD7C3 /* Assets.xcassets */,
 				860299B9209250EA003CD7C3 /* LaunchScreen.storyboard */,
@@ -417,9 +423,11 @@
 				860DA610209A874C00B12F27 /* DefenderViewController.swift in Sources */,
 				860299B3209250E7003CD7C3 /* AttackerViewController.swift in Sources */,
 				86A9BCD52096D541007CC548 /* Constants.swift in Sources */,
+				D300E93A20A8D115000E4756 /* GameOverViewController.swift in Sources */,
 				860299B1209250E7003CD7C3 /* AppDelegate.swift in Sources */,
 				86D7043420A54269001B91C2 /* HostLobbyViewController.swift in Sources */,
 				0DC51F2220A400EA0014158B /* NewGameViewController.swift in Sources */,
+				D300E93820A8D103000E4756 /* CustomPointAnnotation.swift in Sources */,
 				0D0A451C20A4BFB700C166A3 /* JoinGameViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
