@@ -449,9 +449,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                             
                             print(delta)
                             print(distanceToEnemy)
-                            if delta < 45 || distanceToEnemy < 5 {
+//                            if delta < 45 || distanceToEnemy < 5 {
                                 inRangeNames[name] = hash
-                            }
+//                            }
                             
                         }
                     }
