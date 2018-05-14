@@ -594,7 +594,7 @@ extension DefenderViewController : CBCentralManagerDelegate {
         peripherals.append(peripheral)
         
         if advertisementData["kCBAdvDataLocalName"] != nil {
-            let name = peripheral.name as! String
+            let name = advertisementData["kCBAdvDataLocalName"] as! String
             if name.count == 8 {
                 nearbyDevices.insert(advertisementData["kCBAdvDataLocalName"] as! String)
             }
