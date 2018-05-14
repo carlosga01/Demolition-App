@@ -38,6 +38,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
+    @IBOutlet weak var reviveButton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
@@ -166,8 +167,12 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let status = snapshot.value as? String
             if status == "Alive" {
                 self.playerStatus.text = "Alive"
+                self.fireButton.isEnabled = true;
+                self.reviveButton.isEnabled = true;
             } else if status == "Dead" {
                 self.playerStatus.text = "Dead"
+                self.fireButton.isEnabled = false;
+                self.reviveButton.isEnabled = false;
             }
         }
         
@@ -353,6 +358,11 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         } else {
             self.generateKillPopup(title: "You're out of ammo!", message: "That sucks :(", names: [:])
         }
+    }
+    
+    @IBAction func reviveButton(_ sender: UIButton) {
+        pressType = "revive"
+        startScanning(timeout: SCAN_TIMEOUT)
     }
     
     func initService() {
