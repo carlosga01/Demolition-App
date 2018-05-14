@@ -438,19 +438,19 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         let lon2 = Double(player[5])
                         
                         if team == "Defender" && status == "Alive" {
-                            print("hit")
-                            let me = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(self.myLat!), longitude: CLLocationDegrees(self.myLon!)))
-                            let enemy = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(lat2!), longitude: CLLocationDegrees(lon2!)))
-                            
-                            let distanceToEnemy = MKMetersBetweenMapPoints(me, enemy)
-                            let headingToEnemy = atan2(sin(lon2!-self.myLon!)*cos(lat2!), cos(self.myLat!)*sin(lat2!)-sin(self.myLat!)*cos(lat2!)*cos(lon2!-self.myLon!))
-                            
-                            let delta = abs(headingToEnemy - self.myHeading!)
-                            
-                            print(delta)
-                            print(distanceToEnemy)
-//                            if delta < 45 || distanceToEnemy < 5 {
-                                inRangeNames[name] = hash
+//                            print("hit")
+//                            let me = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(self.myLat!), longitude: CLLocationDegrees(self.myLon!)))
+//                            let enemy = MKMapPointForCoordinate(CLLocationCoordinate2D(latitude: CLLocationDegrees(lat2!), longitude: CLLocationDegrees(lon2!)))
+//
+//                            let distanceToEnemy = MKMetersBetweenMapPoints(me, enemy)
+//                            let headingToEnemy = atan2(sin(lon2!-self.myLon!)*cos(lat2!), cos(self.myLat!)*sin(lat2!)-sin(self.myLat!)*cos(lat2!)*cos(lon2!-self.myLon!))
+//
+//                            let delta = abs(headingToEnemy - self.myHeading!)
+//
+//                            print(delta)
+//                            print(distanceToEnemy)
+////                            if delta < 45 || distanceToEnemy < 5 {
+                            inRangeNames[name] = hash
 //                            }
                             
                         }
@@ -611,7 +611,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let values = snapshot.value as? [String:[String:Any]]
             
             for hash in hashList {
+                print(hash)
                 let player = values![hash]
+                
                 let name = player!["Name"] as! String
                 let team = player!["Team"] as! String
                 let status = player!["Status"] as! String
