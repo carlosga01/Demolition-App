@@ -140,7 +140,6 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         super.viewDidDisappear(animated)
         ref.removeAllObservers()
         teamsRef.removeAllObservers()
-        gameStateRef.removeAllObservers()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -709,7 +709,7 @@
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="E5F-Fj-Ted" kind="show" identifier="gameOverSegue" id="7z3-GK-emv"/>
+                                    <segue destination="E5F-Fj-Ted" kind="show" identifier="newGameSegue" id="7z3-GK-emv"/>
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kNJ-ak-dJu" userLabel="iphoneX Bottom">
