@@ -537,6 +537,9 @@
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHH-jl-niz">
                                         <rect key="frame" x="0.0" y="0.0" width="125" height="96"/>
+                                        <color key="backgroundColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <state key="normal" title="REVIVE"/>
                                         <connections>
                                             <action selector="reviveButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kBs-AL-UM4"/>
@@ -544,12 +547,12 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vy7-up-sUj">
                                         <rect key="frame" x="125" y="0.0" width="125" height="96"/>
-                                        <color key="backgroundColor" red="0.4392156862745098" green="0.32941176470588235" blue="0.2196078431372549" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" red="0.90588235289999997" green="0.015686274510000001" blue="0.058823529409999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="96" id="Zqm-QJ-VaU"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
-                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <state key="normal" title="FIRE"/>
                                         <connections>
                                             <action selector="fireButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="k1l-nb-Dti"/>
@@ -557,7 +560,10 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bhz-ZC-XI8">
                                         <rect key="frame" x="250" y="0.0" width="125" height="96"/>
-                                        <state key="normal" title="Capture"/>
+                                        <color key="backgroundColor" red="0.30196078430000001" green="0.43921568630000002" blue="0.30196078430000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <state key="normal" title="CAPTURE"/>
                                         <connections>
                                             <action selector="captureButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UuB-mD-yRB"/>
                                         </connections>
