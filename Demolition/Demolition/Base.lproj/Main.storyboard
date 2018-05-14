@@ -642,6 +642,11 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k3q-L0-GDm" userLabel="iphoneX Bottom">
+                                <rect key="frame" x="0.0" y="778" width="375" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="0.74901960779999999" green="0.69019607839999997" blue="0.51372549020000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -757,9 +762,19 @@
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Pyr-R7-mP0">
                                 <rect key="frame" x="0.0" y="682" width="375" height="96"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RlF-hE-Azc">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ttn-o3-gqr">
                                         <rect key="frame" x="0.0" y="0.0" width="187.66666666666666" height="96"/>
                                         <color key="backgroundColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <state key="normal" title="REVIVE"/>
+                                        <connections>
+                                            <action selector="reviveButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="BWh-Ag-wvT"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RlF-hE-Azc">
+                                        <rect key="frame" x="187.66666666666663" y="0.0" width="187.33333333333337" height="96"/>
+                                        <color key="backgroundColor" red="0.90588235289999997" green="0.015686274510000001" blue="0.058823529409999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="96" id="wuJ-NZ-MLU"/>
                                         </constraints>
@@ -769,14 +784,6 @@
                                         <connections>
                                             <action selector="fireButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3vc-xM-4uP"/>
                                             <action selector="fireButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="tb8-i7-2X6"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ttn-o3-gqr">
-                                        <rect key="frame" x="187.66666666666663" y="0.0" width="187.33333333333337" height="96"/>
-                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
-                                        <state key="normal" title="REVIVE"/>
-                                        <connections>
-                                            <action selector="reviveButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="BWh-Ag-wvT"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -884,6 +891,7 @@
                         <outlet property="playerStatus" destination="iQl-Rc-NZ7" id="1r1-3C-e6e"/>
                         <outlet property="reviveButton" destination="Ttn-o3-gqr" id="KlW-b5-bpO"/>
                         <outlet property="timeLeft" destination="S0D-mb-gGq" id="bTY-xM-WvB"/>
+                        <segue destination="f7P-Zf-Fpn" kind="show" identifier="gameOverSegue" id="elw-E2-Bb5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W21-fm-d6u" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -893,6 +901,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="ErX-Sw-XJK"/>
+        <segue reference="elw-E2-Bb5"/>
         <segue reference="0mP-ie-m36"/>
     </inferredMetricsTieBreakers>
 </document>
