@@ -54,7 +54,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var playerAnnotations = [CustomPointAnnotation()]
     var anView = MKAnnotationView()
     
-    var ammo = 5
+    var ammo = 10
     var timer: Timer? = nil
     var firstCheck = false
     var receivedName = ""

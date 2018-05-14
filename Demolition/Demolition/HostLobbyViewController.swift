@@ -140,8 +140,9 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
             if status == "inProgress" {
                 // set global timer
                 let currentTimestamp = NSDate().timeIntervalSince1970
-                let twentyMins = TimeInterval(20*60)
-                let gameEndTime = Int(currentTimestamp + twentyMins)
+//                let twentyMins = TimeInterval(20*60)
+                let thirtyMins = TimeInterval(30*60)
+                let gameEndTime = Int(currentTimestamp + thirtyMins)
                 self.ref.child("Parties").child(self.partyID).child("Global").child("endTime").setValue(gameEndTime)
                 
                 // segue into vc

@@ -45,7 +45,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @IBOutlet weak var mapView: MKMapView!
     
     
-    var ammo = 5;
+    var ammo = 10
     var timer: Timer? = nil;
     var firstCheck = false;
     let locationManager = CLLocationManager()
