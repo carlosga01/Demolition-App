@@ -444,7 +444,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         let name = player[0]
                         let hash = player[3]
                         
-                        if team == "Attacker" && status == "Dead" {
+                        if team == "Defender" && status == "Dead" {
                             inRangeNames[name] = hash
                         }
                     }
