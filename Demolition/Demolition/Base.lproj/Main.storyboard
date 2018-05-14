@@ -661,10 +661,12 @@
                     </view>
                     <connections>
                         <outlet property="ammoLeft" destination="Rsi-hN-Bs1" id="gdI-Pd-Vks"/>
+                        <outlet property="captureButton" destination="bhz-ZC-XI8" id="oQ2-DG-3im"/>
                         <outlet property="fireButton" destination="vy7-up-sUj" id="6xo-wM-Xgv"/>
                         <outlet property="mapView" destination="3AU-lP-Say" id="gCt-of-Npw"/>
                         <outlet property="name" destination="Anj-OF-Dgc" id="wNG-gU-Ky1"/>
                         <outlet property="playerStatus" destination="rLF-Zm-Bmd" id="NbR-CP-8UT"/>
+                        <outlet property="reviveButton" destination="SHH-jl-niz" id="vwM-fo-viX"/>
                         <outlet property="timeLeft" destination="e0V-p5-YtI" id="gMM-Xu-RIF"/>
                         <segue destination="f7P-Zf-Fpn" kind="show" identifier="gameOverSegue" id="eU3-sM-35k"/>
                     </connections>
@@ -702,7 +704,7 @@
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="E5F-Fj-Ted" kind="show" id="7z3-GK-emv"/>
+                                    <segue destination="E5F-Fj-Ted" kind="show" identifier="gameOverSegue" id="7z3-GK-emv"/>
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kNJ-ak-dJu" userLabel="iphoneX Bottom">
@@ -752,20 +754,33 @@
                             <userLayoutGuide location="187" affinity="minX"/>
                         </userGuides>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RlF-hE-Azc">
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Pyr-R7-mP0">
                                 <rect key="frame" x="0.0" y="682" width="375" height="96"/>
-                                <color key="backgroundColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="96" id="wuJ-NZ-MLU"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="FIRE"/>
-                                <connections>
-                                    <action selector="fireButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3vc-xM-4uP"/>
-                                    <action selector="fireButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="tb8-i7-2X6"/>
-                                </connections>
-                            </button>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RlF-hE-Azc">
+                                        <rect key="frame" x="0.0" y="0.0" width="187.66666666666666" height="96"/>
+                                        <color key="backgroundColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="96" id="wuJ-NZ-MLU"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="FIRE"/>
+                                        <connections>
+                                            <action selector="fireButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3vc-xM-4uP"/>
+                                            <action selector="fireButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="tb8-i7-2X6"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ttn-o3-gqr">
+                                        <rect key="frame" x="187.66666666666663" y="0.0" width="187.33333333333337" height="96"/>
+                                        <fontDescription key="fontDescription" name="Futura-Bold" family="Futura" pointSize="17"/>
+                                        <state key="normal" title="REVIVE"/>
+                                        <connections>
+                                            <action selector="reviveButton:" destination="VUK-X9-96r" eventType="touchUpInside" id="BWh-Ag-wvT"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="top" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="stF-2i-qRg" userLabel="Game Info">
                                 <rect key="frame" x="64.666666666666671" y="59.999999999999993" width="246.66666666666663" height="113.33333333333331"/>
                                 <subviews>
@@ -849,14 +864,15 @@
                             <constraint firstItem="iQl-Rc-NZ7" firstAttribute="centerX" secondItem="rtD-uu-Qx9" secondAttribute="centerX" id="01t-r3-w4c"/>
                             <constraint firstItem="iQl-Rc-NZ7" firstAttribute="top" secondItem="stF-2i-qRg" secondAttribute="bottom" constant="8" id="4RV-wN-g3p"/>
                             <constraint firstItem="stF-2i-qRg" firstAttribute="top" secondItem="9U9-DE-MQg" secondAttribute="bottom" constant="16" id="6HF-8m-L3p"/>
-                            <constraint firstItem="WET-M0-IZv" firstAttribute="top" secondItem="RlF-hE-Azc" secondAttribute="bottom" id="7aZ-JQ-m28"/>
+                            <constraint firstItem="Pyr-R7-mP0" firstAttribute="centerX" secondItem="rtD-uu-Qx9" secondAttribute="centerX" id="7Zv-lc-Xz7"/>
                             <constraint firstItem="stF-2i-qRg" firstAttribute="centerX" secondItem="rtD-uu-Qx9" secondAttribute="centerX" id="B8G-qb-U1g"/>
-                            <constraint firstItem="RlF-hE-Azc" firstAttribute="leading" secondItem="rtD-uu-Qx9" secondAttribute="leading" id="BOL-20-6bh"/>
                             <constraint firstItem="MF2-q2-kIx" firstAttribute="centerX" secondItem="rtD-uu-Qx9" secondAttribute="centerX" id="HsH-Ku-cU8"/>
-                            <constraint firstItem="RlF-hE-Azc" firstAttribute="top" secondItem="MF2-q2-kIx" secondAttribute="bottom" id="QH6-Q6-xtV"/>
                             <constraint firstAttribute="trailing" secondItem="MF2-q2-kIx" secondAttribute="trailing" id="W7a-fW-O9x"/>
                             <constraint firstItem="MF2-q2-kIx" firstAttribute="top" secondItem="iQl-Rc-NZ7" secondAttribute="bottom" id="bNM-cw-KAo"/>
-                            <constraint firstAttribute="trailing" secondItem="RlF-hE-Azc" secondAttribute="trailing" id="mN1-Um-N7y"/>
+                            <constraint firstItem="WET-M0-IZv" firstAttribute="top" secondItem="Pyr-R7-mP0" secondAttribute="bottom" id="blx-5W-PUM"/>
+                            <constraint firstAttribute="trailing" secondItem="Pyr-R7-mP0" secondAttribute="trailing" id="c8Z-Yr-ulg"/>
+                            <constraint firstItem="Pyr-R7-mP0" firstAttribute="leading" secondItem="rtD-uu-Qx9" secondAttribute="leading" id="ijl-Vd-XJ7"/>
+                            <constraint firstItem="Pyr-R7-mP0" firstAttribute="top" secondItem="MF2-q2-kIx" secondAttribute="bottom" id="n8G-mI-XRV"/>
                             <constraint firstItem="MF2-q2-kIx" firstAttribute="leading" secondItem="rtD-uu-Qx9" secondAttribute="leading" id="zjv-D9-JRb"/>
                         </constraints>
                     </view>
@@ -866,12 +882,13 @@
                         <outlet property="mapView" destination="MF2-q2-kIx" id="lUt-qs-oOn"/>
                         <outlet property="name" destination="Y4B-ZF-zhB" id="rKn-aV-M8b"/>
                         <outlet property="playerStatus" destination="iQl-Rc-NZ7" id="1r1-3C-e6e"/>
+                        <outlet property="reviveButton" destination="Ttn-o3-gqr" id="KlW-b5-bpO"/>
                         <outlet property="timeLeft" destination="S0D-mb-gGq" id="bTY-xM-WvB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W21-fm-d6u" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="102" y="631"/>
+            <point key="canvasLocation" x="101.59999999999999" y="630.29556650246309"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

@@ -40,7 +40,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var characteristics = [String: CBCharacteristic]()
     
     @IBOutlet weak var playerStatus: UILabel!
+    @IBOutlet weak var reviveButton: UIButton!
     @IBOutlet weak var fireButton: UIButton!
+    @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
@@ -144,9 +146,15 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             if status == "Alive" {
                 //TODO: remove red overlay and enable buttons
                 self.playerStatus.text = "Alive"
+                self.captureButton.isEnabled = true
+                self.reviveButton.isEnabled = true
+                self.fireButton.isEnabled = true
             } else if status == "Dead" {
                 //TODO: add red overlay and disable buttons
                 self.playerStatus.text = "Dead"
+                self.captureButton.isEnabled = false
+                self.reviveButton.isEnabled = false
+                self.fireButton.isEnabled = false
             }
         }
 
