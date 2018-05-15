@@ -156,13 +156,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         playerStatusRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String
             if status == "Alive" {
-                //TODO: remove red overlay and enable buttons
+                //remove red overlay and enable buttons
                 self.playerStatus = "Alive"
                 self.enableAllButtons()
                 self.deathOverlay.alpha = 0.0;
                 self.allStatusRef.child(self.name.text!).setValue("Alive")
+                
             } else if status == "Dead" {
-                //TODO: add red overlay and disable buttons
+                //add red overlay and disable buttons
                 self.playerStatus = "Dead"
                 self.disableAllButtons()
                 self.deathOverlay.alpha = 0.75
@@ -574,6 +575,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let button = DefaultButton(title: name) {
                 let hash = names[name]
                 self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
+                
+                // dec numDefendersAlive
+                self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                    var value = snapshot.value as! Int
+                    value = value - 1
+                    self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
+                })
             }
             buttons.append(button)
         }
@@ -596,6 +604,13 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let button = DefaultButton(title: name) {
                 let hash = names[name]
                 self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
+                
+                // inc numAttackersAlive
+                self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                    var value = snapshot.value as! Int
+                    value = value + 1
+                    self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
+                })
             }
             buttons.append(button)
         }

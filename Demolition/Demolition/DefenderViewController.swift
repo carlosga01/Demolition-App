@@ -515,6 +515,13 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let button = DefaultButton(title: name) {
                 let hash = names[name]
                 self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
+                
+                // dec numAttackersAlive
+                self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                    var value = snapshot.value as! Int
+                    value = value - 1
+                    self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
+                })
             }
             buttons.append(button)
         }
@@ -537,6 +544,13 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let button = DefaultButton(title: name) {
                 let hash = names[name]
                 self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
+                
+                // inc numDefendersAlive
+                self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                    var value = snapshot.value as! Int
+                    value = value + 1
+                    self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
+                })
             }
             buttons.append(button)
         }

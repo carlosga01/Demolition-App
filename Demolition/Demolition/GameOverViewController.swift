@@ -34,8 +34,10 @@ class GameOverViewController: UIViewController {
             }
 
         } else if didTimeExpire || areAllAttackersDead {
-            print(receivedDefendersList)
             winnerLabel.text = "DEFENDERS WIN!"
+            for winner in receivedDefendersList {
+                winnersListLabel.text = winnersListLabel.text! + winner + "\n"
+            }
         }
     }
     
