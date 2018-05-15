@@ -149,12 +149,16 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
             vc?.receivedPartyID = partyID
             vc?.receivedCustomHash = customHash
             vc?.receivedFlags = self.flagAnnotations
+            vc?.receivedAttackersList = self.attackers
+            vc?.receivedDefendersList = self.defenders
         } else if segue.destination is AttackerViewController {
             let vc = segue.destination as? AttackerViewController
             vc?.receivedName = playerName
             vc?.receivedPartyID = partyID
             vc?.receivedCustomHash = customHash
             vc?.receivedFlags = self.flagAnnotations
+            vc?.receivedAttackersList = self.attackers
+            vc?.receivedDefendersList = self.defenders
         }
     }
     

@@ -42,6 +42,7 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     var ref: DatabaseReference!
     var teamsRef: DatabaseReference!
+    var globalRef: DatabaseReference!
     var gameStateRef: DatabaseReference!
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -91,7 +92,8 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         
         ref = Database.database().reference()
         teamsRef = ref.child("Parties").child(partyID).child("Teams")
-        gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+        globalRef = ref.child("Parties").child(partyID).child("Global")
+        gameStateRef = globalRef.child("gameState")
         gameStateRef.setValue("inLobby")
         
         //append flags to database
@@ -162,7 +164,11 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     @IBAction func startButton(_ sender: UIButton) {
         gameStateRef.setValue("inProgress")
-        self.ref.child("Parties").child(partyID).child("Global").child("flagsCaptured").setValue(0)
+        globalRef.child("flagsCaptured").setValue(0)
+        
+        //set numAttackersAlive and defendersAlive in DB
+        globalRef.child("numPlayersAlive").child("numAttackersAlive").setValue(self.attackers.count)
+        globalRef.child("numPlayersAlive").child("numDefendersAlive").setValue(self.defenders.count)
     }
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {

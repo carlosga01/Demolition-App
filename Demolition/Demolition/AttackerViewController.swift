@@ -21,6 +21,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var partyRef: DatabaseReference!
     var playerRef: DatabaseReference!
     var playerStatusRef: DatabaseReference!
+    var globalLevelRef: DatabaseReference!
+    var numPlayersAliveRef: DatabaseReference!
     var flagsCapturedRef: DatabaseReference!
     var localGameStateRef: DatabaseReference!
     var endTimeRef: DatabaseReference!
@@ -73,6 +75,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     var didTimeExpire = false
     var didCaptureMostFlags = false
+    var areAllAttackersDead = false
+    var areAllDefendersDead = false
     
     var nearbyDevices = Set<String>()
     var nearbyHills = Set<String>()
@@ -99,7 +103,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.startUpdatingLocation()
-            locationManager.startUpdatingHeading()
+            //locationManager.startUpdatingHeading()
         }
 
         self.mapView.addAnnotations(Array(receivedFlags.values))
@@ -109,10 +113,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         partyRef = ref.child("Parties").child(receivedPartyID)
         playerRef = partyRef.child("Players").child(receivedCustomHash)
         playerStatusRef = playerRef.child("Status")
-        flagsCapturedRef = partyRef.child("Global").child("flagsCaptured")
-        localGameStateRef = partyRef.child("Global").child("gameState")
-        endTimeRef = partyRef.child("Global").child("endTime")
-        globalFlagsRef = partyRef.child("Global").child("Flags")
+        globalLevelRef = partyRef.child("Global")
+        flagsCapturedRef = globalLevelRef.child("flagsCaptured")
+        localGameStateRef = globalLevelRef.child("gameState")
+        endTimeRef = globalLevelRef.child("endTime")
+        globalFlagsRef = globalLevelRef.child("Flags")
+        numPlayersAliveRef = globalLevelRef.child("numPlayersAlive")
 
         //set the values in the player hash section of the DB
         playerRef.child("Name").setValue(receivedName)
@@ -134,6 +140,8 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             vc?.didCaptureMostFlags = didCaptureMostFlags
             vc?.receivedAttackersList = receivedAttackersList
             vc?.receivedDefendersList = receivedDefendersList
+            vc?.areAllAttackersDead = areAllAttackersDead
+            vc?.areAllDefendersDead = areAllDefendersDead
         }
     }
     
@@ -177,11 +185,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         
         // listen to endTime value from database
-        endTimeRef.observe(DataEventType.value, with: { (snapshot) in
+        endTimeRef.observe(DataEventType.value) { (snapshot) in
             let value = snapshot.value as! TimeInterval
             self.endTime = value
-        }) { (error) in
-            print(error.localizedDescription)
         }
         
         // listen for flag statuses from Database
@@ -202,6 +208,19 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 }
             }
         }
+        
+        //listen to numAttackersAlive and numDefendersAlive
+        numPlayersAliveRef.observe(DataEventType.value) { (snapshot) in
+            let numPlayerAlive = snapshot.value as! [String:Int]
+            if numPlayerAlive["numAttackersAlive"]! == 0 {
+                self.areAllAttackersDead = true
+                self.localGameStateRef.setValue("isOver")
+            }
+            if numPlayerAlive["numDefendersAlive"]! == 0 {
+                self.areAllDefendersDead = true
+                self.localGameStateRef.setValue("isOver")
+            }
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -211,6 +230,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         localGameStateRef.removeAllObservers()
         endTimeRef.removeAllObservers()
         globalFlagsRef.removeAllObservers()
+        numPlayersAliveRef.removeAllObservers()
         
         stopTimer()
         locationManager.stopUpdatingLocation()
@@ -611,7 +631,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let values = snapshot.value as? [String:[String:Any]]
             
             for hash in hashList {
-                print(hash)
                 let player = values![hash]
                 
                 let name = player!["Name"] as! String

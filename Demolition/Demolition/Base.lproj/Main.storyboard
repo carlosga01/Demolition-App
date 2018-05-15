@@ -4,7 +4,6 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -723,12 +722,20 @@
                                 <color key="textColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0m3-KV-Uy9">
+                                <rect key="frame" x="188.33333333333334" y="439" width="0.0" height="0.0"/>
+                                <fontDescription key="fontDescription" name="Futura-Medium" family="Futura" pointSize="17"/>
+                                <color key="textColor" red="0.43921568630000002" green="0.3294117647" blue="0.21960784310000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="0.74901960779999999" green="0.69019607839999997" blue="0.51372549020000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="XfC-yS-FfH" firstAttribute="leading" secondItem="T8N-TQ-bHO" secondAttribute="leading" id="4iu-HV-eOa"/>
+                            <constraint firstItem="0m3-KV-Uy9" firstAttribute="top" secondItem="lyO-e9-nfX" secondAttribute="bottom" constant="21.666666666666686" id="AdC-ie-S4H"/>
                             <constraint firstItem="lyO-e9-nfX" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="M4K-k7-BGt"/>
                             <constraint firstAttribute="trailing" secondItem="XfC-yS-FfH" secondAttribute="trailing" id="WnK-Wy-Dsw"/>
+                            <constraint firstItem="0m3-KV-Uy9" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="Zuf-8O-aAq"/>
                             <constraint firstItem="XfC-yS-FfH" firstAttribute="centerX" secondItem="T8N-TQ-bHO" secondAttribute="centerX" id="cAe-6Q-NVa"/>
                             <constraint firstItem="lyO-e9-nfX" firstAttribute="centerY" secondItem="T8N-TQ-bHO" secondAttribute="centerY" id="e3N-YX-fVF"/>
                             <constraint firstItem="ehA-QN-8ht" firstAttribute="top" secondItem="1wU-e8-RBf" secondAttribute="bottom" constant="170" id="soX-dN-t1V"/>
@@ -738,6 +745,7 @@
                     </view>
                     <connections>
                         <outlet property="winnerLabel" destination="lyO-e9-nfX" id="l4y-4L-zFu"/>
+                        <outlet property="winnersListLabel" destination="0m3-KV-Uy9" id="L0P-oJ-SUX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GFU-OJ-rEZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -900,8 +908,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="ErX-Sw-XJK"/>
+        <segue reference="Fms-De-bmf"/>
         <segue reference="elw-E2-Bb5"/>
-        <segue reference="0mP-ie-m36"/>
+        <segue reference="hHe-X3-lU0"/>
     </inferredMetricsTieBreakers>
 </document>
