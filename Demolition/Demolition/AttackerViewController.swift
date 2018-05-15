@@ -27,6 +27,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var localGameStateRef: DatabaseReference!
     var endTimeRef: DatabaseReference!
     var globalFlagsRef: DatabaseReference!
+    var allStatusRef: DatabaseReference!
     
     var playerLatitude: DatabaseReference = DatabaseReference()
     var playerLongitude: DatabaseReference = DatabaseReference()
@@ -41,7 +42,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var activePeripheral: CBPeripheral?
     var characteristics = [String: CBCharacteristic]()
     
-    @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var reviveButton: UIButton!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var captureButton: UIButton!
@@ -49,6 +49,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var deathOverlay: UIView!
     
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
@@ -63,6 +64,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var receivedPartyID = ""
     var receivedCustomHash = ""
     var receivedFlags: Dictionary<String, CustomPointAnnotation> = [:]
+    var playerStatus = "Alive"
     
     var receivedAttackersList: [String] = []
     var receivedDefendersList: [String] = []
@@ -113,12 +115,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         partyRef = ref.child("Parties").child(receivedPartyID)
         playerRef = partyRef.child("Players").child(receivedCustomHash)
         playerStatusRef = playerRef.child("Status")
+
         globalLevelRef = partyRef.child("Global")
         flagsCapturedRef = globalLevelRef.child("flagsCaptured")
         localGameStateRef = globalLevelRef.child("gameState")
         endTimeRef = globalLevelRef.child("endTime")
         globalFlagsRef = globalLevelRef.child("Flags")
         numPlayersAliveRef = globalLevelRef.child("numPlayersAlive")
+        allStatusRef = ref.child("Parties").child(receivedPartyID).child("PlayerStatus")
 
         //set the values in the player hash section of the DB
         playerRef.child("Name").setValue(receivedName)
@@ -153,16 +157,16 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let status = snapshot.value as? String
             if status == "Alive" {
                 //TODO: remove red overlay and enable buttons
-                self.playerStatus.text = "Alive"
-                self.captureButton.isEnabled = true
-                self.reviveButton.isEnabled = true
-                self.fireButton.isEnabled = true
+                self.playerStatus = "Alive"
+                self.enableAllButtons()
+                self.deathOverlay.alpha = 0.0;
+                self.allStatusRef.child(self.name.text!).setValue("Alive")
             } else if status == "Dead" {
                 //TODO: add red overlay and disable buttons
-                self.playerStatus.text = "Dead"
-                self.captureButton.isEnabled = false
-                self.reviveButton.isEnabled = false
-                self.fireButton.isEnabled = false
+                self.playerStatus = "Dead"
+                self.disableAllButtons()
+                self.deathOverlay.alpha = 0.75
+                self.allStatusRef.child(self.name.text!).setValue("Dead")
             }
         }
 
@@ -189,6 +193,29 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let value = snapshot.value as! TimeInterval
             self.endTime = value
         }
+        
+        //listen to all player status's
+        allStatusRef.observe(DataEventType.value) { (snapshot) in
+            let allStatusDict = snapshot.value as! Dictionary<String, Any>
+            var deadNames = ""
+            var imDead = false
+            for name in allStatusDict.keys {
+                let status = allStatusDict[name] as! String
+                
+                if status == "Dead" {
+                    if name == self.name.text {
+                        imDead = true
+                    }
+                    deadNames += name + " "
+                }
+            }
+            if deadNames != "" && imDead == false {
+                let alert = UIAlertController(title: "Dead Players:", message: deadNames, preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+        
         
         // listen for flag statuses from Database
         globalFlagsRef.observe(DataEventType.value) { (snapshot) in
@@ -231,6 +258,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         endTimeRef.removeAllObservers()
         globalFlagsRef.removeAllObservers()
         numPlayersAliveRef.removeAllObservers()
+        allStatusRef.removeAllObservers()
         
         stopTimer()
         locationManager.stopUpdatingLocation()
@@ -383,6 +411,17 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         peripheralManager.add(serialService)
     }
     
+    func disableAllButtons() {
+        fireButton.isEnabled = false;
+        reviveButton.isEnabled = false;
+        captureButton.isEnabled = false;
+    }
+    
+    func enableAllButtons() {
+        fireButton.isEnabled = true;
+        reviveButton.isEnabled = true;
+        captureButton.isEnabled = true;
+    }
     
     func startScanning(timeout: Double) -> Bool {
         if centralManager?.state != .poweredOn {
@@ -391,6 +430,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         
         if self.scanning == false {
+            
+            disableAllButtons()
+            
             self.scanning = true
             
             print("[DEBUG] Scanning started")
@@ -410,6 +452,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     @objc private func scanTimeout() {
         self.scanning = false
+        enableAllButtons()
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         
@@ -431,7 +474,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                     
                     //check if player is still alive
 
-                    if self.playerStatus.text == "Alive" {
+                    if self.playerStatus == "Alive" {
                         self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: unCapturedHills)
                     }
                 } else {
@@ -574,7 +617,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for hill in hills {
             
             let button = DefaultButton(title: hill) {
-                if self.playerStatus.text == "Alive" {
+                if self.playerStatus == "Alive" {
                     flags.child(hill).child("Status").setValue("Captured")
                     
                     //increment flagsCaptured in database
@@ -583,6 +626,11 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         value = value + 1
                         self.ref.child("Parties").child(self.receivedPartyID).child("Global").child("flagsCaptured").setValue(value)
                     })
+                    
+                    //add 5 minutes to overall time
+                    let fiveMin = TimeInterval(5 * 60)
+                    self.endTimeRef.setValue(self.endTime + fiveMin)
+                    
                 }
             }
             buttons.append(button)

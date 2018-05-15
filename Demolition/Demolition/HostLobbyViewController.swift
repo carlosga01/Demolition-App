@@ -44,6 +44,7 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     var teamsRef: DatabaseReference!
     var globalRef: DatabaseReference!
     var gameStateRef: DatabaseReference!
+    var playerStatusRef: DatabaseReference!
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -95,6 +96,8 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         globalRef = ref.child("Parties").child(partyID).child("Global")
         gameStateRef = globalRef.child("gameState")
         gameStateRef.setValue("inLobby")
+        playerStatusRef = ref.child("Parties").child(partyID).child("PlayerStatus")
+        playerStatusRef.child(playerName).setValue("Alive")
         
         //append flags to database
         let globalFlagsRef = ref.child("Parties").child(partyID).child("Global").child("Flags")
@@ -143,8 +146,8 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
                 // set global timer
                 let currentTimestamp = NSDate().timeIntervalSince1970
 //                let twentyMins = TimeInterval(20*60)
-                let thirtyMins = TimeInterval(30*60)
-                let gameEndTime = Int(currentTimestamp + thirtyMins)
+                let tenMins = TimeInterval(10*60)
+                let gameEndTime = Int(currentTimestamp + tenMins)
                 self.ref.child("Parties").child(self.partyID).child("Global").child("endTime").setValue(gameEndTime)
                 
                 // segue into vc
