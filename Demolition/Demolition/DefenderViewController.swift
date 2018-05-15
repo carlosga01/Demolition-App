@@ -25,6 +25,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var localGameStateRef: DatabaseReference!
     var endTimeRef: DatabaseReference!
     var globalFlagsRef: DatabaseReference!
+    var allStatusRef: DatabaseReference!
     
     var playerLatitude: DatabaseReference = DatabaseReference();
     var playerLongitude: DatabaseReference = DatabaseReference();
@@ -109,6 +110,8 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         localGameStateRef = partyRef.child("Global").child("gameState")
         endTimeRef = partyRef.child("Global").child("endTime")
         globalFlagsRef = partyRef.child("Global").child("Flags")
+        allStatusRef = ref.child("Parties").child(receivedPartyID).child("PlayerStatus")
+
         
         //set the values in the player hash section of the DB
         playerRef.child("Name").setValue(receivedName)
@@ -202,6 +205,28 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
             print(error.localizedDescription)
         }
         
+        //listen to all player status's
+        allStatusRef.observe(DataEventType.value) { (snapshot) in
+            let allStatusDict = snapshot.value as! Dictionary<String, Any>
+            var deadNames = ""
+            var imDead = false
+            for name in allStatusDict.keys {
+                let status = allStatusDict[name] as! String
+                
+                if status == "Dead" {
+                    if name == self.name.text {
+                        imDead = true
+                    }
+                    deadNames += name + " "
+                }
+            }
+            if deadNames != "" && imDead == false {
+                let alert = UIAlertController(title: "Dead Players:", message: deadNames, preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+        
         // listen for flag statuses from Database
         globalFlagsRef.observe(DataEventType.value) { (snapshot) in
             let flags = snapshot.value! as! [String:[String:Any]]
@@ -228,6 +253,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         localGameStateRef.removeAllObservers()
         endTimeRef.removeAllObservers()
         globalFlagsRef.removeAllObservers()
+        allStatusRef.removeAllObservers()
         
         stopTimer()
         locationManager.stopUpdatingLocation()
@@ -373,6 +399,15 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         peripheralManager.add(serialService)
     }
     
+    func enableAllButtons() {
+        fireButton.isEnabled = true;
+        reviveButton.isEnabled = true;
+    }
+    
+    func disableAllButtons() {
+        fireButton.isEnabled = false;
+        reviveButton.isEnabled = false;
+    }
     
     func startScanning(timeout: Double) -> Bool {
         if centralManager?.state != .poweredOn {
@@ -381,6 +416,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         
         if scanning == false {
+            disableAllButtons()
             scanning == true;
             print("[DEBUG] Scanning started")
             
@@ -396,6 +432,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     
     @objc private func scanTimeout() {
         scanning = false;
+        enableAllButtons()
         print("[DEBUG] Scanning stopped")
         self.centralManager?.stopScan()
         

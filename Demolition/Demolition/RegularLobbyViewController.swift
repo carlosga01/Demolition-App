@@ -33,6 +33,7 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var ref: DatabaseReference!
     var teamsRef: DatabaseReference!
     var gameStateRef: DatabaseReference!
+    var playerStatusRef: DatabaseReference!
     
     var annotation1 = CustomPointAnnotation()
     var annotation2 = CustomPointAnnotation()
@@ -92,6 +93,8 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         ref = Database.database().reference()
         teamsRef = ref.child("Parties").child(partyID).child("Teams")
         gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+        playerStatusRef = ref.child("Parties").child(partyID).child("PlayerStatus")
+        playerStatusRef.child(playerName).setValue("Alive")
         
         flagAnnotations = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6, "Flag7": annotation7]
         
