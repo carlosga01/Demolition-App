@@ -37,14 +37,13 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var activePeripheral: CBPeripheral?
     var characteristics = [String: CBCharacteristic]()
     
-    @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var reviveButton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
-    
+    @IBOutlet weak var deathOverlay: UIView!
     
     var ammo = 10
     var timer: Timer? = nil;
@@ -59,6 +58,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var receivedName = ""
     var receivedPartyID = ""
     var receivedCustomHash = ""
+    var playerStatus = "Alive"
     
     var receivedAttackersList: [String] = []
     var receivedDefendersList: [String] = []
@@ -169,13 +169,17 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         playerStatusRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as? String
             if status == "Alive" {
-                self.playerStatus.text = "Alive"
-                self.fireButton.isEnabled = true;
-                self.reviveButton.isEnabled = true;
+                //TODO: remove red overlay and enable buttons
+                self.playerStatus = "Alive"
+                self.enableAllButtons()
+                self.deathOverlay.alpha = 0.0;
+                self.allStatusRef.child(self.name.text!).setValue("Alive")
             } else if status == "Dead" {
-                self.playerStatus.text = "Dead"
-                self.fireButton.isEnabled = false;
-                self.reviveButton.isEnabled = false;
+                //TODO: add red overlay and disable buttons
+                self.playerStatus = "Dead"
+                self.disableAllButtons()
+                self.deathOverlay.alpha = 0.75
+                self.allStatusRef.child(self.name.text!).setValue("Dead")
             }
         }
         

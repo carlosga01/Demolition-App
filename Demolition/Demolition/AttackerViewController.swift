@@ -40,7 +40,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var activePeripheral: CBPeripheral?
     var characteristics = [String: CBCharacteristic]()
     
-    @IBOutlet weak var playerStatus: UILabel!
     @IBOutlet weak var reviveButton: UIButton!
     @IBOutlet weak var fireButton: UIButton!
     @IBOutlet weak var captureButton: UIButton!
@@ -48,6 +47,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     @IBOutlet weak var ammoLeft: UILabel!
     @IBOutlet weak var timeLeft: UILabel!
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var deathOverlay: UIView!
     
     let locationManager = CLLocationManager()
     var centerLocation: CLLocationCoordinate2D?
@@ -62,6 +62,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
     var receivedPartyID = ""
     var receivedCustomHash = ""
     var receivedFlags: Dictionary<String, CustomPointAnnotation> = [:]
+    var playerStatus = "Alive"
     
     var receivedAttackersList: [String] = []
     var receivedDefendersList: [String] = []
@@ -148,17 +149,15 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
             let status = snapshot.value as? String
             if status == "Alive" {
                 //TODO: remove red overlay and enable buttons
-                self.playerStatus.text = "Alive"
-                self.captureButton.isEnabled = true
-                self.reviveButton.isEnabled = true
-                self.fireButton.isEnabled = true
+                self.playerStatus = "Alive"
+                self.enableAllButtons()
+                self.deathOverlay.alpha = 0.0;
                 self.allStatusRef.child(self.name.text!).setValue("Alive")
             } else if status == "Dead" {
                 //TODO: add red overlay and disable buttons
-                self.playerStatus.text = "Dead"
-                self.captureButton.isEnabled = false
-                self.reviveButton.isEnabled = false
-                self.fireButton.isEnabled = false
+                self.playerStatus = "Dead"
+                self.disableAllButtons()
+                self.deathOverlay.alpha = 0.75
                 self.allStatusRef.child(self.name.text!).setValue("Dead")
             }
         }
@@ -455,7 +454,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                     
                     //check if player is still alive
 
-                    if self.playerStatus.text == "Alive" {
+                    if self.playerStatus == "Alive" {
                         self.generateCapturePopup(title: "Capture in range!", message: "Select a hill to steal data from:", hills: unCapturedHills)
                     }
                 } else {
@@ -598,7 +597,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for hill in hills {
             
             let button = DefaultButton(title: hill) {
-                if self.playerStatus.text == "Alive" {
+                if self.playerStatus == "Alive" {
                     flags.child(hill).child("Status").setValue("Captured")
                     
                     //increment flagsCaptured in database
