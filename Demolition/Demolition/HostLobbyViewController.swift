@@ -82,12 +82,23 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         nameLabel.text = playerName
         
         annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
+        annotation1.title = "Flag1"
+        
         annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
+        annotation2.title = "Flag2"
+
         annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
+        annotation3.title = "Flag3"
+
         annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
+        annotation4.title = "Flag4"
+
         annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
+        annotation5.title = "Flag5"
+
         annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
-        annotation7.coordinate = CLLocationCoordinate2D(latitude: 42.361098, longitude: -71.090898)
+        annotation6.title = "Flag6"
+
         
         ref = Database.database().reference()
         teamsRef = ref.child("Parties").child(partyID).child("Teams")
@@ -97,12 +108,11 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         //append flags to database
         let globalFlagsRef = ref.child("Parties").child(partyID).child("Global").child("Flags")
         
-        flagAnnotations = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6, "Flag7": annotation7]
+        flagAnnotations = ["Flag1" : annotation1, "Flag2": annotation2, "Flag3":annotation3, "Flag4" : annotation4, "Flag5" : annotation5, "Flag6" : annotation6]
         
         var count = 1
         for location in flagAnnotations.values {
             location.imageName = "pin"
-            
             let flag = globalFlagsRef.child("Flag" + String(count))
             flag.child("Status").setValue("Free")
             flag.child("Location").child("Longitude").setValue(location.coordinate.longitude)

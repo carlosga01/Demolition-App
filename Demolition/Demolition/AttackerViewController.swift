@@ -266,6 +266,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 else{
                     playerAnnotation.imageName = "self"
                 }
+                playerAnnotation.imageName = player[4]
                 playerAnnotation.coordinate = CLLocationCoordinate2D(latitude: Double(player[0])!, longitude: Double(player[1])!)
                 self.playerAnnotations.append(playerAnnotation)
                 self.mapView.addAnnotation(playerAnnotation)
@@ -288,6 +289,11 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
     }
     
+//    @objc func showAnnotationDisclosure(sender: MyButton) {
+//        print("Disclosure button clicked")
+//        print(sender.annotation?.title as! String)
+//    }
+    
     func mapView(_ mapView: MKMapView!, viewFor annotation: MKAnnotation!) -> MKAnnotationView! {
         if annotation.isKind(of: MKUserLocation.self) {
             return nil
@@ -295,19 +301,47 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         
         let annotationReuseId = "Place"
         var anView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationReuseId)
+        
         if anView == nil {
             anView = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationReuseId)
+//            let button = UIButton(type: .detailDisclosure)
+//            button.addTarget(self, action: #selector(AttackerViewController.showAnnotationDisclosure(sender:)), for: .touchUpInside)
+//            anView?.rightCalloutAccessoryView = button
+            
         } else {
             anView?.annotation = annotation
         }
+        
         let cpa = annotation as! CustomPointAnnotation
         anView?.image = UIImage(named:cpa.imageName)
         anView?.frame.size = CGSize(width: 30, height: 30)
         anView?.backgroundColor = UIColor.clear
-        anView?.canShowCallout = false
+        anView?.canShowCallout = true;
+        
+//        if let button = anView!.rightCalloutAccessoryView as? MyButton {
+//            button.annotation = annotation as! CustomPointAnnotation
+//        }
+//
         return anView
         
     }
+    
+    func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
+        
+        if control == view.rightCalloutAccessoryView {
+            print("Pressed!")
+            
+        }
+        print("Click")
+    }
+    
+//    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+//        print("Annotation selected")
+//
+//        if let annotation = view.annotation as? CustomPointAnnotation {
+//            print(annotation.title);
+//        }
+//    }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
@@ -585,14 +619,14 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
 
                     continue
                 }
-                
                 let location = value.value["Location"]! as! Dictionary<String,AnyObject>
                 let team = value.value["Team"]! as! String
                 let status = value.value["Status"] as! String
+                let name = value.value["Name"]! as! String
                 if location["Latitude"] != nil{
                     let lat = location["Latitude"]! as! Double
                     let lon = location["Longitude"]! as! Double
-                    players.append([String(lat), String(lon), team, status])
+                    players.append([String(lat), String(lon), team, status, name])
                 }
             }
 
@@ -675,6 +709,10 @@ extension AttackerViewController : CBCentralManagerDelegate {
             }
         }
     }
+}
+
+class MyButton : UIButton {
+    var annotation: CustomPointAnnotation? = nil
 }
 
 

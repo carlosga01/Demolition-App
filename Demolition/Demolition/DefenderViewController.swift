@@ -302,6 +302,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 }else{
                     playerAnnotation.imageName = "self"
                 }
+                playerAnnotation.title = player[4]
                 playerAnnotation.coordinate = CLLocationCoordinate2D(latitude: Double(player[0])!, longitude: Double(player[1])!)
                 self.playerAnnotations.append(playerAnnotation)
                 self.mapView.addAnnotation(playerAnnotation)
@@ -325,7 +326,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         anView?.image = UIImage(named:cpa.imageName)
         anView?.frame.size = CGSize(width: 30, height: 30)
         anView?.backgroundColor = UIColor.clear
-        anView?.canShowCallout = false
+        anView?.canShowCallout = true
         return anView
         
     }
@@ -527,10 +528,11 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 let location = value.value["Location"]! as! Dictionary<String,AnyObject>
                 let team = value.value["Team"]! as! String
                 let status = value.value["Status"] as! String
+                let name = value.value["Name"] as! String
                 if location["Latitude"] != nil{
                     let lat = location["Latitude"]! as! Double
                     let lon = location["Longitude"]! as! Double
-                    players.append([String(lat) , String(lon), team, status])
+                    players.append([String(lat) , String(lon), team, status, name])
                 }
             }
             
