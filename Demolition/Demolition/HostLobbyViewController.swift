@@ -42,7 +42,9 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     var ref: DatabaseReference!
     var teamsRef: DatabaseReference!
+    var globalRef: DatabaseReference!
     var gameStateRef: DatabaseReference!
+    var playerStatusRef: DatabaseReference!
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -81,29 +83,38 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         partyLabel.text = partyID
         nameLabel.text = playerName
         
-        annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360453, longitude: -71.092541)
-        annotation1.title = "Flag1"
+        annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360743, longitude: -71.091081)
+        annotation1.title = "Flag 1"
+        annotation1.subtitle = "Near bike racks"
         
-        annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358184, longitude: -71.092091)
-        annotation2.title = "Flag2"
-
-        annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358714, longitude: -71.090531)
-        annotation3.title = "Flag3"
-
-        annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359950, longitude: -71.089064)
-        annotation4.title = "Flag4"
-
-        annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361306, longitude: -71.087134)
-        annotation5.title = "Flag5"
-
-        annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361618, longitude: -71.089299)
-        annotation6.title = "Flag6"
+        annotation2.coordinate = CLLocationCoordinate2D(latitude: 42.358243, longitude: -71.091955)
+        annotation2.title = "Flag 2"
+        annotation2.subtitle = "Next to a poll"
+        
+        annotation3.coordinate = CLLocationCoordinate2D(latitude: 42.358694, longitude: -71.090601)
+        annotation3.title = "Flag 3"
+        annotation3.subtitle = "Next to a poll"
+        
+        annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359738, longitude: -71.088962) //good
+        annotation4.title = "Flag 4"
+        annotation4.subtitle = "Underneath the statue"
+        
+        annotation5.coordinate = CLLocationCoordinate2D(latitude: 42.361286, longitude: -71.087382)
+        annotation5.title = "Flag 5"
+        annotation5.subtitle = "Under a bench"
+        
+        annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361664, longitude: -71.089983)
+        annotation6.title = "Flag 6"
+        annotation6.subtitle = "Top of amphitheater"
 
         
         ref = Database.database().reference()
         teamsRef = ref.child("Parties").child(partyID).child("Teams")
-        gameStateRef = ref.child("Parties").child(partyID).child("Global").child("gameState")
+        globalRef = ref.child("Parties").child(partyID).child("Global")
+        gameStateRef = globalRef.child("gameState")
         gameStateRef.setValue("inLobby")
+        playerStatusRef = ref.child("Parties").child(partyID).child("PlayerStatus")
+        playerStatusRef.child(playerName).setValue("Alive")
         
         //append flags to database
         let globalFlagsRef = ref.child("Parties").child(partyID).child("Global").child("Flags")
@@ -151,8 +162,8 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
                 // set global timer
                 let currentTimestamp = NSDate().timeIntervalSince1970
 //                let twentyMins = TimeInterval(20*60)
-                let thirtyMins = TimeInterval(30*60)
-                let gameEndTime = Int(currentTimestamp + thirtyMins)
+                let tenMins = TimeInterval(10*60)
+                let gameEndTime = Int(currentTimestamp + tenMins)
                 self.ref.child("Parties").child(self.partyID).child("Global").child("endTime").setValue(gameEndTime)
                 
                 // segue into vc
@@ -172,7 +183,11 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     @IBAction func startButton(_ sender: UIButton) {
         gameStateRef.setValue("inProgress")
-        self.ref.child("Parties").child(partyID).child("Global").child("flagsCaptured").setValue(0)
+        globalRef.child("flagsCaptured").setValue(0)
+        
+        //set numAttackersAlive and defendersAlive in DB
+        globalRef.child("numPlayersAlive").child("numAttackersAlive").setValue(self.attackers.count)
+        globalRef.child("numPlayersAlive").child("numDefendersAlive").setValue(self.defenders.count)
     }
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {

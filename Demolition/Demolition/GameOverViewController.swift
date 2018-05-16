@@ -15,21 +15,29 @@ class GameOverViewController: UIViewController {
     var ref: DatabaseReference!
     var receivedPartyID: String = ""
     var didTimeExpire: Bool = false
-    var didCaptureMostFlags: Bool = true
+    var didCaptureMostFlags: Bool = false
+    var areAllAttackersDead: Bool = false
+    var areAllDefendersDead: Bool = false
     var receivedAttackersList: [String] = []
     var receivedDefendersList: [String] = []
     
     @IBOutlet weak var winnerLabel: UILabel!
+    @IBOutlet weak var winnersListLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // get winners
-        if didCaptureMostFlags && !didTimeExpire {
-            print(receivedAttackersList)
+        if didCaptureMostFlags || areAllDefendersDead {
             winnerLabel.text = "ATTACKERS WIN!"
-        } else if !didCaptureMostFlags && didTimeExpire {
-            print(receivedDefendersList)
+            for winner in receivedAttackersList {
+                winnersListLabel.text = winnersListLabel.text! + winner + "\n"
+            }
+
+        } else if didTimeExpire || areAllAttackersDead {
             winnerLabel.text = "DEFENDERS WIN!"
+            for winner in receivedDefendersList {
+                winnersListLabel.text = winnersListLabel.text! + winner + "\n"
+            }
         }
     }
     
