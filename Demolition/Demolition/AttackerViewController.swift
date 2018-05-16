@@ -172,7 +172,7 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         // listen to flagsCaptured
         flagsCapturedRef.observe(DataEventType.value) { (snapshot) in
             let numFlagsCaptured = snapshot.value as! Int
-            if numFlagsCaptured >= 4 {
+            if numFlagsCaptured >= 3 {
                 self.didCaptureMostFlags = true
                 self.localGameStateRef.setValue("isOver")
             }
