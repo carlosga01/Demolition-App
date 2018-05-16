@@ -154,6 +154,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                 self.disableAllButtons()
                 self.deathOverlay.alpha = 0.75
                 self.allStatusRef.child(self.name.text!).setValue("Dead")
+                
             }
         }
         
@@ -451,10 +452,12 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         }
                     }
                     
-                    if inRangeNames.count > 0 {
-                        self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
-                    } else {
-                        self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                    if self.playerStatus == "Alive"{
+                        if inRangeNames.count > 0 {
+                            self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
+                        } else {
+                            self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                        }
                     }
                     
                 })
@@ -476,10 +479,12 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         }
                     }
                     
-                    if inRangeNames.count > 0 {
-                        self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
-                    } else {
-                        self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                    if self.playerStatus == "Alive"{
+                        if inRangeNames.count > 0 {
+                            self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                        } else {
+                            self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                        }
                     }
                 })
             }
@@ -502,18 +507,22 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         let popup = PopupDialog(title: title, message: message, image: nil)
         
         var buttons = [PopupDialogButton]()
+        
         for name in names.keys {
             
             let button = DefaultButton(title: name) {
-                let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
+                if self.playerStatus == "Alive"{
+                    let hash = names[name]
+                    self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
+                    
+                    // dec numAttackersAlive
+                    self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                        var value = snapshot.value as! Int
+                        value = value - 1
+                        self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
+                    })
+                }
                 
-                // dec numAttackersAlive
-                self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
-                    var value = snapshot.value as! Int
-                    value = value - 1
-                    self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
-                })
             }
             buttons.append(button)
         }
@@ -521,6 +530,7 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         popup.addButtons(buttons)
         
         // Present dialog
+        
         self.present(popup, animated: true, completion: nil)
     }
     
@@ -534,15 +544,17 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for name in names.keys {
             
             let button = DefaultButton(title: name) {
-                let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
+                if self.playerStatus == "Alive"{
+                    let hash = names[name]
+                    self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
                 
-                // inc numDefendersAlive
-                self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
-                    var value = snapshot.value as! Int
-                    value = value + 1
-                    self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
-                })
+                    // inc numDefendersAlive
+                    self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                        var value = snapshot.value as! Int
+                        value = value + 1
+                        self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
+                    })
+                }
             }
             buttons.append(button)
         }

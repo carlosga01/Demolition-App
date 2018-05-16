@@ -544,11 +544,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                             
                         }
                     }
-                    
-                    if inRangeNames.count > 0 {
-                        self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
-                    } else {
-                        self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                    if self.playerStatus == "Alive"{
+                        if inRangeNames.count > 0 {
+                            self.generateKillPopup(title: "Hit!", message: "Select an enemy to kill:", names: inRangeNames)
+                        } else {
+                            self.generateKillPopup(title: "Miss!", message: "There was no one in range.", names: [:])
+                        }
                     }
                 })
                 
@@ -569,10 +570,12 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
                         }
                     }
                     
-                    if inRangeNames.count > 0 {
-                        self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
-                    } else {
-                        self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                    if self.playerStatus == "Alive"{
+                        if inRangeNames.count > 0 {
+                            self.generateRevivePopup(title: "Downed ally in range!", message: "Select an ally to revive:", names: inRangeNames)
+                        } else {
+                            self.generateRevivePopup(title: "No downed allys in range!", message: "I guess that's good?", names: [:])
+                        }
                     }
                 })
             }
@@ -598,15 +601,17 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for name in names.keys {
             
             let button = DefaultButton(title: name) {
-                let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
-                
-                // dec numDefendersAlive
-                self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
-                    var value = snapshot.value as! Int
-                    value = value - 1
-                    self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
-                })
+                if self.playerStatus == "Alive"{
+                    let hash = names[name]
+                    self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Dead")
+                    
+                    // dec numDefendersAlive
+                    self.numPlayersAliveRef.child("numDefendersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                        var value = snapshot.value as! Int
+                        value = value - 1
+                        self.numPlayersAliveRef.child("numDefendersAlive").setValue(value)
+                    })
+                }
             }
             buttons.append(button)
         }
@@ -627,15 +632,17 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         for name in names.keys {
             
             let button = DefaultButton(title: name) {
-                let hash = names[name]
-                self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
+                if self.playerStatus == "Alive"{
+                    let hash = names[name]
+                    self.ref.child("Parties").child(self.receivedPartyID).child("Players").child(hash!).child("Status").setValue("Alive")
                 
-                // inc numAttackersAlive
-                self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
-                    var value = snapshot.value as! Int
-                    value = value + 1
-                    self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
-                })
+                    // inc numAttackersAlive
+                    self.numPlayersAliveRef.child("numAttackersAlive").observeSingleEvent(of: .value, with: { (snapshot) in
+                        var value = snapshot.value as! Int
+                        value = value + 1
+                        self.numPlayersAliveRef.child("numAttackersAlive").setValue(value)
+                    })
+                }
             }
             buttons.append(button)
         }
