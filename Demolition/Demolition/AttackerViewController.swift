@@ -736,22 +736,16 @@ extension AttackerViewController : CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         
         peripherals.append(peripheral)
-
+        
         if advertisementData["kCBAdvDataLocalName"] != nil {
             let name = peripheral.name
             let hash = advertisementData["kCBAdvDataLocalName"] as? String
             
-            let flags = ["Flag1", "Flag2", "Flag3", "Flag4", "Flag5", "Flag6", "Flag7"]
+            let flags = ["Flag1", "Flag2", "Flag3", "Flag4", "Flag5", "Flag6"]
             
-            //TODO: remove this when we get a new node
-            if name == "HILL11" {
-                nearbyHills.insert("Flag7")
-            }
-            
-            else if flags.contains(name!) {
-                if RSSI.decimalValue > -70 {
-                    nearbyHills.insert(name!)
-                }
+            if flags.contains(name!) {
+                nearbyHills.insert(name!)
+                
             } else if hash!.count == 8 {
                 nearbyDevices.insert(hash!)
             }

@@ -286,7 +286,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
     }
     
     
-    
     func scheduledLocationFetcher() {
         //scheduled timer to fetch for locations
         timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchLocationsFromDatabase), userInfo: nil, repeats: true)
