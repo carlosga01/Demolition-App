@@ -118,6 +118,9 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         globalFlagsRef = globalLevelRef.child("Flags")
         numPlayersAliveRef = globalLevelRef.child("numPlayersAlive")
         allStatusRef = ref.child("Parties").child(receivedPartyID).child("PlayerStatus")
+        
+        playerLatitude = playerRef.child("Location").child("Latitude")
+        playerLongitude = playerRef.child("Location").child("Longitude")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

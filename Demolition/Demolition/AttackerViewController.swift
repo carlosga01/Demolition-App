@@ -123,6 +123,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         globalFlagsRef = globalLevelRef.child("Flags")
         numPlayersAliveRef = globalLevelRef.child("numPlayersAlive")
         allStatusRef = ref.child("Parties").child(receivedPartyID).child("PlayerStatus")
+        
+        playerLatitude = playerRef.child("Location").child("Latitude")
+        playerLongitude = playerRef.child("Location").child("Longitude")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -394,7 +397,6 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         }
         
         //add center to db
-        
         self.playerLatitude.setValue(location.coordinate.latitude)
         self.playerLongitude.setValue(location.coordinate.longitude)
         self.myLat = location.coordinate.latitude
@@ -403,9 +405,9 @@ class AttackerViewController: UIViewController, CLLocationManagerDelegate, MKMap
         self.mapView.showsUserLocation = true
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        self.myHeading = newHeading.magneticHeading
-    }
+//    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+//        self.myHeading = newHeading.magneticHeading
+//    }
     
     @IBAction func reviveButton(_ sender: UIButton) {
         pressType = "revive"
