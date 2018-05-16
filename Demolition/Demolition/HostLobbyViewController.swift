@@ -36,7 +36,6 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     var annotation4 = CustomPointAnnotation()
     var annotation5 = CustomPointAnnotation()
     var annotation6 = CustomPointAnnotation()
-    var annotation7 = CustomPointAnnotation()
     
     var flagAnnotations: Dictionary<String, CustomPointAnnotation> = [:]
     
@@ -52,6 +51,9 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        partyLabel.text = partyID
+        nameLabel.text = playerName
         
         let selectedTextAttributes: [NSAttributedStringKey: Any] = [
             .font : UIFont(name: "Futura", size: 17.0)!,
@@ -80,8 +82,15 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         defendersTable.dataSource = self
         defendersTable.register(UITableViewCell.self, forCellReuseIdentifier: "defenderCell")
         
-        partyLabel.text = partyID
-        nameLabel.text = playerName
+        ref = Database.database().reference()
+        teamsRef = ref.child("Parties").child(partyID).child("Teams")
+        globalRef = ref.child("Parties").child(partyID).child("Global")
+        
+        gameStateRef = globalRef.child("gameState")
+        gameStateRef.setValue("inLobby")
+        
+        playerStatusRef = ref.child("Parties").child(partyID).child("PlayerStatus")
+        playerStatusRef.child(playerName).setValue("Alive")
         
         annotation1.coordinate = CLLocationCoordinate2D(latitude: 42.360743, longitude: -71.091081)
         annotation1.title = "Flag 1"
@@ -95,7 +104,7 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         annotation3.title = "Flag 3"
         annotation3.subtitle = "Next to a poll"
         
-        annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359738, longitude: -71.088962) //good
+        annotation4.coordinate = CLLocationCoordinate2D(latitude: 42.359738, longitude: -71.088962)
         annotation4.title = "Flag 4"
         annotation4.subtitle = "Underneath the statue"
         
@@ -106,15 +115,6 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
         annotation6.coordinate = CLLocationCoordinate2D(latitude: 42.361664, longitude: -71.089983)
         annotation6.title = "Flag 6"
         annotation6.subtitle = "Top of amphitheater"
-
-        
-        ref = Database.database().reference()
-        teamsRef = ref.child("Parties").child(partyID).child("Teams")
-        globalRef = ref.child("Parties").child(partyID).child("Global")
-        gameStateRef = globalRef.child("gameState")
-        gameStateRef.setValue("inLobby")
-        playerStatusRef = ref.child("Parties").child(partyID).child("PlayerStatus")
-        playerStatusRef.child(playerName).setValue("Alive")
         
         //append flags to database
         let globalFlagsRef = ref.child("Parties").child(partyID).child("Global").child("Flags")
@@ -131,7 +131,9 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
             count += 1
         }
         
-        
+        //create Location folder in DB for player
+        self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Location").child("Longitude").setValue(0)
+        self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Location").child("Latitude").setValue(0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -182,21 +184,24 @@ class HostLobbyViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     @IBAction func startButton(_ sender: UIButton) {
-        gameStateRef.setValue("inProgress")
         globalRef.child("flagsCaptured").setValue(0)
         
         //set numAttackersAlive and defendersAlive in DB
         globalRef.child("numPlayersAlive").child("numAttackersAlive").setValue(self.attackers.count)
         globalRef.child("numPlayersAlive").child("numDefendersAlive").setValue(self.defenders.count)
+        
+        gameStateRef.setValue("inProgress")
     }
     
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
             teamsRef.child(playerName).setValue("Attacker")
+            self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Team").setValue("Attacker")
             
         case 1:
             teamsRef.child(playerName).setValue("Defender")
+            self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Team").setValue("Defender")
             
         default:
             print("[ERROR] Team Selection Error.")

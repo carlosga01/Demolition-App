@@ -41,7 +41,6 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
     var annotation4 = CustomPointAnnotation()
     var annotation5 = CustomPointAnnotation()
     var annotation6 = CustomPointAnnotation()
-    var annotation7 = CustomPointAnnotation()
     
     var flagAnnotations: Dictionary<String, CustomPointAnnotation> = [:]
     
@@ -118,6 +117,10 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         for location in flagAnnotations.values {
             location.imageName = "pin"
         }
+        
+        //create Location folder in DB for player
+        self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Location").child("Longitude").setValue(0)
+        self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Location").child("Latitude").setValue(0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -146,6 +149,10 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         gameStateRef.observe(DataEventType.value) { (snapshot) in
             let status = snapshot.value as! String
             if status == "inProgress" {
+                //set the values in the player hash section of the DB
+//                self.ref.child("Parties").child(self.partyID).child(self.customHash).child("Name").setValue(self.playerName)
+//                self.ref.child("Parties").child(self.partyID).child(self.customHash).child("Status").setValue("Alive")
+                
                 // segue into vc
                 if self.teamSelector.selectedSegmentIndex == 0 {
                     self.performSegue(withIdentifier: "attackerSegue", sender: nil)
@@ -186,9 +193,12 @@ class RegularLobbyViewController: UIViewController, UITableViewDelegate, UITable
         switch sender.selectedSegmentIndex {
         case 0:
             teamsRef.child(playerName).setValue("Attacker")
+            self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Team").setValue("Attacker")
             
         case 1:
             teamsRef.child(playerName).setValue("Defender")
+            self.ref.child("Parties").child(self.partyID).child("Players").child(self.customHash).child("Team").setValue("Defender")
+            
         default:
             print("[ERROR] Team Selection Error.")
         }

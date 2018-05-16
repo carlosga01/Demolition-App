@@ -118,17 +118,6 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
         globalFlagsRef = globalLevelRef.child("Flags")
         numPlayersAliveRef = globalLevelRef.child("numPlayersAlive")
         allStatusRef = ref.child("Parties").child(receivedPartyID).child("PlayerStatus")
-
-        //set the values in the player hash section of the DB
-        playerRef.child("Name").setValue(receivedName)
-        playerRef.child("Team").setValue("Defender")
-        playerRef.child("Status").setValue("Alive")
-        
-        //create Location folder in DB for player
-        playerLongitude = playerRef.child("Location").child("Longitude")
-        playerLongitude.setValue(0)
-        playerLatitude = playerRef.child("Location").child("Latitude")
-        playerLatitude.setValue(0)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
