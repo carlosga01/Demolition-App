@@ -203,7 +203,11 @@ class DefenderViewController: UIViewController, CLLocationManagerDelegate, MKMap
                     deadNames += name + " "
                 }
             }
-            if deadNames != "" && imDead == false {
+            if imDead == false {
+                if deadNames == "" {
+                    deadNames += "None"
+                }
+                
                 let alert = UIAlertController(title: "Dead Players:", message: deadNames, preferredStyle: UIAlertControllerStyle.alert)
                 alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
